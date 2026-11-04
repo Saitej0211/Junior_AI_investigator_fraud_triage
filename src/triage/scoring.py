@@ -30,6 +30,7 @@ class CaseScore:
     tier: str  # "Low", "Medium", "High"
     triggered: list[TriggeredSignal]
     floor_applied: bool
+    floor_reason: str | None = None  # why the tier was raised to Medium
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -68,7 +69,21 @@ def score_case(row: pd.Series) -> CaseScore:
         tier = "Medium"
 
     triggered.sort(key=lambda t: t.points, reverse=True)
-    return CaseScore(row["case_id"], score, tier, triggered, floor_applied)
+    return CaseScore(row["case_id"], score, tier, triggered, floor_applied,
+                     "duplicate billing or provider overlap" if floor_applied else None)
+
+
+def apply_shared_claim_floor(case_score: CaseScore, shares_claim_with: list[str]) -> CaseScore:
+    """A claim number reused across cases is hard evidence no single row shows.
+
+    The row can look perfectly clean (C1001 scores 0), so without this the case
+    would be auto-cleared and its twin investigated alone.
+    """
+    if shares_claim_with and case_score.tier == "Low":
+        case_score.tier = "Medium"
+        case_score.floor_applied = True
+        case_score.floor_reason = f"claim number also billed on {', '.join(shares_claim_with)}"
+    return case_score
 
 
 def score_all(df: pd.DataFrame) -> dict[str, CaseScore]:

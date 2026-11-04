@@ -27,9 +27,21 @@
 
 ## Scoring
 
-- Duplicate billing and overlapping providers are hard evidence and never
-  auto-cleared.
+- Duplicate billing, overlapping providers and a claim number shared with
+  another case are hard evidence and never auto-cleared: the rules engine
+  raises them to at least Medium, and the UI flags any AI recommendation to
+  close them.
 - Shared contact info, high visit frequency, distance and peer overbilling are
   strong patterns.
 - Weekend billing, round-dollar billing, a recent policy change and prior
   claim count are circumstantial: suspicious mainly in combination.
+
+## AI
+
+- The rules score is the anchor; the LLM explains it and may disagree, but
+  any disagreement is shown to the investigator rather than resolved silently.
+- A free-tier LLM (Groq by default) is enough for 50 cases. The synthetic data
+  means sending it to a free-tier API is acceptable; real claims data would
+  need a paid tier with data-retention guarantees or a private deployment.
+- "Normal" peer values are computed from the Low-tier cases only. Every case
+  is a referral, so medians over the whole queue are inflated by fraud.

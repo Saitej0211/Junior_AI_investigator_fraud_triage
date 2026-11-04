@@ -29,6 +29,23 @@ function renderAlerts(cases) {
   }
 }
 
+function assessmentCell(c) {
+  const cell = el("td", { className: "assessment" });
+  const a = c.assessment;
+  if (!a) {
+    cell.append(el("span", { className: "muted" },
+      c.ai_status === "skipped" ? "Rules only" : "AI unavailable"));
+    return cell;
+  }
+  cell.append(el("div", { className: "action" }, a.recommended_action));
+  cell.append(el("div", {}, a.summary));
+  if (c.grounding_issues.length) {
+    cell.append(el("div", { className: "warn", title: c.grounding_issues.join("\n") },
+      `⚠ ${c.grounding_issues.length} check${c.grounding_issues.length > 1 ? "s" : ""} failed`));
+  }
+  return cell;
+}
+
 function renderQueue(cases) {
   const body = document.getElementById("queue");
   for (const c of cases) {
@@ -39,6 +56,7 @@ function renderQueue(cases) {
       el("td", {}, c.case_id),
       tierCell,
       el("td", { className: "num" }, c.score.toFixed(1)),
+      assessmentCell(c),
       el("td", {}, c.triggered.slice(0, 3).map((t) => t.label).join(", ") || "None"),
     );
     body.append(row);

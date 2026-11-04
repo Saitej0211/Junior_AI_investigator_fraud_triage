@@ -41,8 +41,11 @@ h1 { font-size: 22px; margin: 8px 0 12px; }
 }
 .error { background: var(--high-bg); color: var(--high); }
 
+.table-wrap { overflow-x: auto; }
+
 table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -52,3 +55,7 @@ table {
 th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 600; }
 .num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.assessment { max-width: 420px; }
+.action { font-weight: 600; }
+.warn { color: var(--medium); font-size: 13px; margin-top: 4px; }

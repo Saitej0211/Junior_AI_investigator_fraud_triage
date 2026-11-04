@@ -2,7 +2,7 @@ import pytest
 
 from triage.cross_case import duplicate_claim_numbers
 from triage.data import load_cases
-from triage.scoring import score_all
+from triage.scoring import apply_shared_claim_floor, score_all, score_case
 
 
 @pytest.fixture(scope="module")
@@ -40,3 +40,10 @@ def test_duplicate_claim_number_detected(df):
     dupes = duplicate_claim_numbers(df)
     assert dupes["C1001"] == ["C1031"]
     assert dupes["C1031"] == ["C1001"]
+
+
+def test_shared_claim_number_floors_clean_case_to_medium(df):
+    case_score = apply_shared_claim_floor(score_case(df.loc["C1001"]), ["C1031"])
+    assert case_score.score == 0
+    assert case_score.tier == "Medium"
+    assert "C1031" in case_score.floor_reason

@@ -1,14 +1,19 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
-from scripts.run_triage import main as run_triage
+import app.main
+import scripts.run_triage
 
 
 @pytest.fixture(scope="module")
-def client():
-    run_triage()
-    return TestClient(app)
+def client(tmp_path_factory):
+    # Write to a temp file so tests never overwrite the real outputs/triage.json.
+    triage_path = tmp_path_factory.mktemp("outputs") / "triage.json"
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(scripts.run_triage, "OUT_PATH", triage_path)
+        mp.setattr(app.main, "TRIAGE_PATH", triage_path)
+        scripts.run_triage.main(use_llm=False)
+        yield TestClient(app.main.app)
 
 
 def test_queue_sorted_by_risk(client):
