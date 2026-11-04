@@ -44,6 +44,12 @@ class Assessment(BaseModel):
     open_questions: list[str]
 
 
+class Answer(BaseModel):
+    answer: str
+    citations: list[Indicator]  # fields the answer relies on, checked like indicators
+    answerable: bool  # False when the case data can't answer the question
+
+
 class LLMError(RuntimeError):
     """The model couldn't produce a valid assessment; callers fall back to rules only."""
 
@@ -74,6 +80,23 @@ Rules:
 - next_steps are concrete actions (e.g. "Request weekend visit logs for June").
 - open_questions list what this data cannot answer.
 - confidence reflects how clear-cut the evidence is, not how risky the case is.
+"""
+
+
+QA_SYSTEM_PROMPT = """\
+You are a junior fraud investigator helping a senior investigator review ONE
+referral. They ask follow-up questions about it; you answer from the facts.
+
+Rules:
+- Use ONLY the facts provided: this case's data, its rules score, the
+  cross-case facts and the earlier AI assessment. You cannot see other cases,
+  provider records, documents or anything outside these facts.
+- If the facts cannot answer the question, say so plainly, set answerable to
+  false and name the document or record that would answer it. Never guess.
+- citations list every field your answer relies on, with its exact value. Use
+  the bare field name exactly as it appears in the facts.
+- Answer in 2-5 sentences. Investigators skim.
+- You advise; the investigator decides. Don't claim the case is or isn't fraud.
 """
 
 
@@ -108,22 +131,22 @@ def build_case_facts(row: pd.Series, case_score: CaseScore, cross_case: dict) ->
 REQUEST_TIMEOUT_S = 60
 
 
-def _generate_json(system: str, user: str) -> str:
+def _generate_json(system: str, user: str, schema: type[BaseModel] = Assessment) -> str:
     provider = os.getenv("LLM_PROVIDER", "groq").lower()
     if provider == "groq":
-        return _groq(system, user)
+        return _groq(system, user, schema)
     if provider == "gemini":
-        return _gemini(system, user)
+        return _gemini(system, user, schema)
     if provider == "anthropic":
-        return _anthropic(system, user)
+        return _anthropic(system, user, schema)
     raise LLMConfigError(
         f"Unknown LLM_PROVIDER {provider!r}; use 'groq', 'gemini' or 'anthropic'")
 
 
-def _with_schema(system: str) -> str:
+def _with_schema(system: str, schema: type[BaseModel]) -> str:
     """For providers that don't enforce a schema themselves, spell it out."""
-    schema = json.dumps(Assessment.model_json_schema())
-    return f"{system}\nReply with only a JSON object matching this schema:\n{schema}"
+    spec = json.dumps(schema.model_json_schema())
+    return f"{system}\nReply with only a JSON object matching this schema:\n{spec}"
 
 
 def _strip_fence(text: str) -> str:
@@ -135,7 +158,7 @@ def _strip_fence(text: str) -> str:
 DEFAULT_GROQ_MODELS = "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b"
 
 
-def _groq(system: str, user: str) -> str:
+def _groq(system: str, user: str, schema: type[BaseModel]) -> str:
     import groq
 
     api_key = os.getenv("GROQ_API_KEY")
@@ -152,7 +175,7 @@ def _groq(system: str, user: str) -> str:
                 model=model,
                 temperature=0,
                 response_format={"type": "json_object"},
-                messages=[{"role": "system", "content": _with_schema(system)},
+                messages=[{"role": "system", "content": _with_schema(system, schema)},
                           {"role": "user", "content": user}],
             )
             return _strip_fence(response.choices[0].message.content)
@@ -169,7 +192,7 @@ def _groq(system: str, user: str) -> str:
 DEFAULT_GEMINI_MODELS = "gemini-3.6-flash,gemini-3.8-flash,gemini-flash-latest"
 
 
-def _gemini(system: str, user: str) -> str:
+def _gemini(system: str, user: str, schema: type[BaseModel]) -> str:
     import httpx
     from google import genai
     from google.genai import errors, types
@@ -185,7 +208,7 @@ def _gemini(system: str, user: str) -> str:
         temperature=0,
         # Gemini enforces the schema itself, so malformed output is rare.
         response_mime_type="application/json",
-        response_schema=Assessment,
+        response_schema=schema,
     )
     # GEMINI_MODEL may list fallbacks: popular models often return 503 under load.
     models = [m.strip() for m in os.getenv("GEMINI_MODEL", DEFAULT_GEMINI_MODELS).split(",")]
@@ -205,7 +228,7 @@ def _gemini(system: str, user: str) -> str:
             raise LLMConfigError(f"Gemini rejected the request ({model}): {e}") from e
 
 
-def _anthropic(system: str, user: str) -> str:
+def _anthropic(system: str, user: str, schema: type[BaseModel]) -> str:
     import anthropic
 
     api_key = os.getenv("ANTHROPIC_API_KEY")
@@ -217,31 +240,53 @@ def _anthropic(system: str, user: str) -> str:
         model=os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5"),
         max_tokens=1500,
         temperature=0,
-        system=_with_schema(system),
+        system=_with_schema(system, schema),
         messages=[{"role": "user", "content": user}],
     )
     return _strip_fence(response.content[0].text)
 
 
-def assess_case(row: pd.Series, case_score: CaseScore, cross_case: dict,
-                attempts: int = 3) -> Assessment:
-    """Ask the LLM for an assessment, retrying on bad JSON or transient API errors."""
-    facts = build_case_facts(row, case_score, cross_case)
-    user = f"Assess this referral.\n\n{json.dumps(facts, indent=2)}"
-
+def _ask(system: str, user: str, schema: type[BaseModel], attempts: int,
+         backoff_s: float):
+    """Call the LLM and parse its JSON, retrying on bad JSON or transient API errors."""
     last_error: Exception | None = None
     for attempt in range(attempts):
         try:
-            return Assessment.model_validate_json(_generate_json(SYSTEM_PROMPT, user))
+            return schema.model_validate_json(_generate_json(system, user, schema))
         except LLMError:
             raise  # configuration problem; retrying won't help
         except Exception as e:  # invalid JSON (ValidationError) or API/rate-limit error
             last_error = e
             if attempt < attempts - 1:
-                time.sleep(2 ** attempt * 5)
-    raise LLMError(f"No valid assessment after {attempts} attempts: {last_error}")
+                time.sleep(2 ** attempt * backoff_s)
+    raise LLMError(f"No valid reply after {attempts} attempts: {last_error}")
 
 
-def answer_question(row, assessment, question: str, history: list[dict]) -> str:
-    """Case-scoped chat: answers only from this case's data and peer stats."""
-    raise NotImplementedError("Step 5: follow-up chat")
+def assess_case(row: pd.Series, case_score: CaseScore, cross_case: dict,
+                attempts: int = 3) -> Assessment:
+    """Ask the LLM for an assessment of one case."""
+    facts = build_case_facts(row, case_score, cross_case)
+    user = f"Assess this referral.\n\n{json.dumps(facts, indent=2)}"
+    return _ask(SYSTEM_PROMPT, user, Assessment, attempts, backoff_s=5)
+
+
+# Earlier turns give follow-ups ("and the weekend ratio?") their context; a few
+# are enough and keep the prompt small.
+MAX_HISTORY_TURNS = 6
+
+
+def answer_question(row: pd.Series, case_score: CaseScore, cross_case: dict,
+                    assessment: dict | None, question: str,
+                    history: list[dict] | None = None) -> Answer:
+    """Case-scoped Q&A: answers only from this case's facts and its assessment.
+
+    history is earlier turns as [{"question": ..., "answer": ...}]. Fewer,
+    shorter retries than the batch, because an investigator is waiting.
+    """
+    facts = build_case_facts(row, case_score, cross_case)
+    facts["earlier_ai_assessment"] = assessment
+    turns = (history or [])[-MAX_HISTORY_TURNS:]
+    user = (f"Case facts:\n{json.dumps(facts, indent=2)}\n\n"
+            f"Earlier questions in this conversation:\n{json.dumps(turns, indent=2)}\n\n"
+            f"Investigator's question: {question}")
+    return _ask(QA_SYSTEM_PROMPT, user, Answer, attempts=2, backoff_s=2)

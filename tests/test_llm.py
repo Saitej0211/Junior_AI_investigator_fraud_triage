@@ -6,7 +6,7 @@ import pytest
 
 from triage import llm
 from triage.data import load_cases
-from triage.grounding import validate_assessment
+from triage.grounding import validate_answer, validate_assessment
 from triage.llm import Assessment, LLMError, assess_case
 from triage.scoring import apply_shared_claim_floor, score_all, score_case
 
@@ -42,19 +42,19 @@ def no_sleep(monkeypatch):
 
 
 def test_assess_case_parses_valid_json(monkeypatch, df, scores):
-    monkeypatch.setattr(llm, "_generate_json", lambda system, user: json.dumps(GOOD))
+    monkeypatch.setattr(llm, "_generate_json", lambda system, user, schema: json.dumps(GOOD))
     result = assess_case(df.loc["C1006"], scores["C1006"], {})
     assert result.recommended_action == "Escalate to SIU"
 
 
 def test_assess_case_retries_bad_json(monkeypatch, df, scores):
     replies = iter(["not json", json.dumps(GOOD)])
-    monkeypatch.setattr(llm, "_generate_json", lambda system, user: next(replies))
+    monkeypatch.setattr(llm, "_generate_json", lambda system, user, schema: next(replies))
     assert assess_case(df.loc["C1006"], scores["C1006"], {}).risk_level == "High"
 
 
 def test_assess_case_gives_up_after_retries(monkeypatch, df, scores):
-    monkeypatch.setattr(llm, "_generate_json", lambda system, user: "not json")
+    monkeypatch.setattr(llm, "_generate_json", lambda system, user, schema: "not json")
     with pytest.raises(LLMError):
         assess_case(df.loc["C1006"], scores["C1006"], {})
 
@@ -111,3 +111,39 @@ def test_grounding_flags_closing_a_shared_claim_number(df):
              "recommended_action": "Close as false positive"}
     _, issues = validate_assessment(df.loc["C1001"], case_score, Assessment(**close))
     assert any("C1031" in i and "closing" in i for i in issues)
+
+
+def test_answer_question_is_grounded(monkeypatch, df, scores):
+    reply = {"answer": "The member lives 205 miles from the provider.", "answerable": True,
+             "citations": [{"field": "member_provider_distance_miles", "value": "205",
+                            "why": "Distance"},
+                           {"field": "provider_license_status", "value": "revoked",
+                            "why": "invented"}]}
+    seen = {}
+
+    def fake(system, user, schema):
+        seen["user"] = user
+        return json.dumps(reply)
+
+    monkeypatch.setattr(llm, "_generate_json", fake)
+    answer = llm.answer_question(df.loc["C1006"], scores["C1006"], {}, None,
+                                 "How far away is the provider?",
+                                 [{"question": "Earlier?", "answer": "Yes."}])
+    assert "How far away is the provider?" in seen["user"] and "Earlier?" in seen["user"]
+
+    checked, issues = validate_answer(df.loc["C1006"], scores["C1006"], answer)
+    assert [c["verified"] for c in checked["citations"]] == [True, False]
+    assert len(issues) == 1
+
+
+def test_grounding_accepts_floor_fields(df):
+    case_score = apply_shared_claim_floor(score_case(df.loc["C1001"]), ["C1031"])
+    cited = {**GOOD, "risk_level": "Medium", "recommended_action": "Request documentation",
+             "key_indicators": [
+                 {"field": "hard_evidence_floor_applied", "value": "true", "why": "Floor"},
+                 {"field": "hard_evidence_floor_reason",
+                  "value": "claim number also billed on C1031", "why": "Reason"},
+             ]}
+    checked, issues = validate_assessment(df.loc["C1001"], case_score, Assessment(**cited))
+    assert [i["verified"] for i in checked["key_indicators"]] == [True, True]
+    assert issues == []

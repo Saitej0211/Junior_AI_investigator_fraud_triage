@@ -19,11 +19,10 @@ import os
 from collections import Counter
 
 from triage.config import OUTPUT_DIR
-from triage.cross_case import duplicate_claim_numbers, peer_stats
 from triage.data import load_cases
 from triage.grounding import validate_assessment
 from triage.llm import Assessment, LLMConfigError, LLMError, assess_case
-from triage.scoring import apply_shared_claim_floor, score_all
+from triage.pipeline import score_with_context
 
 OUT_PATH = OUTPUT_DIR / "triage.json"
 
@@ -44,17 +43,15 @@ def _save(results: list[dict]) -> None:
 
 def main(use_llm: bool = True, refresh: bool = False) -> None:
     df = load_cases()
-    duplicates = duplicate_claim_numbers(df)
-    scores = {case_id: apply_shared_claim_floor(cs, duplicates.get(case_id, []))
-              for case_id, cs in score_all(df).items()}
-    peers = peer_stats(df, baseline_ids=[c for c, s in scores.items() if s.tier == "Low"])
+    scores, context = score_with_context(df)
     previous = {} if refresh else _load_previous()
     provider = os.getenv("LLM_PROVIDER", "groq").lower()
 
     results = []
     for i, (case_id, cs) in enumerate(scores.items(), start=1):
         record = cs.to_dict()
-        record["shares_claim_number_with"] = duplicates.get(case_id, [])
+        cross_case = context[case_id]
+        record["shares_claim_number_with"] = cross_case["shares_claim_number_with"]
         record["assessment"] = None
         record["grounding_issues"] = []
         record["ai_status"] = "skipped"
@@ -65,10 +62,6 @@ def main(use_llm: bool = True, refresh: bool = False) -> None:
         # would make assessments inconsistent.
         prior = previous.get(case_id)
         row = df.loc[case_id]
-        cross_case = {
-            "shares_claim_number_with": record["shares_claim_number_with"],
-            "low_risk_peer_medians_for_care_type": peers.loc[row["care_type"]].to_dict(),
-        }
         if (use_llm and prior and prior["ai_status"] == "ok"
                 and prior.get("ai_provider") == provider
                 and prior["score"] == cs.score and prior["tier"] == cs.tier):
@@ -111,8 +104,10 @@ def main(use_llm: bool = True, refresh: bool = False) -> None:
               f"{flagged} with grounding issues")
         if ok < len(results):
             print("  Rerun the same command to retry only the failed cases.")
-    for case_id, others in duplicates.items():
-        print(f"  ! {case_id} shares its claim number with {', '.join(others)}")
+    for r in results:
+        if r["shares_claim_number_with"]:
+            print(f"  ! {r['case_id']} shares its claim number with "
+                  f"{', '.join(r['shares_claim_number_with'])}")
 
 
 if __name__ == "__main__":

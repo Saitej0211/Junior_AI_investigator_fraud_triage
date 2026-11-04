@@ -27,6 +27,10 @@ investigator stays in control: they accept or override every call.
 5. **API and UI** (`app/`). A FastAPI app serves the cached results as JSON
    and a plain HTML/JS page that reads them, so it loads instantly and needs
    no frontend build step. Interactive API docs are at `/docs`.
+6. **Ask about a case** (`POST /api/cases/{id}/ask`). Click a case to open it
+   and ask follow-up questions. The LLM answers only from that case's facts,
+   says so when the data can't answer, and every field it cites is checked
+   the same way as the assessment.
 
 ## Run it locally
 
