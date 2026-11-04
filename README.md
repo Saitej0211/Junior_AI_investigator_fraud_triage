@@ -21,8 +21,9 @@ investigator stays in control: they accept or override every call.
 4. **Grounding** (`src/triage/grounding.py`, *in progress*). Every value the
    LLM cites is checked against the CSV. Disagreements with the rules score
    are flagged, not hidden.
-5. **UI** (`app/streamlit_app.py`). Reads the cached results, so it loads
-   instantly.
+5. **API and UI** (`app/`). A FastAPI app serves the cached results as JSON
+   and a plain HTML/JS page that reads them, so it loads instantly and needs
+   no frontend build step. Interactive API docs are at `/docs`.
 
 ## Run it locally
 
@@ -34,10 +35,10 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env              # then add your ANTHROPIC_API_KEY
 python scripts/run_triage.py      # writes outputs/triage.json
-streamlit run app/streamlit_app.py
+uvicorn app.main:app --reload
 ```
 
-Open http://localhost:8501.
+Open http://localhost:8000 for the app, or http://localhost:8000/docs for the API.
 
 Run the tests with:
 
@@ -51,8 +52,8 @@ pytest
 data/            sample_cases.csv (50 synthetic referrals)
 src/triage/      core logic, with no UI code
 scripts/         batch triage job
-app/             Streamlit UI
-tests/           scoring and cross-case tests
+app/             FastAPI app (main.py) and static UI (static/)
+tests/           scoring, cross-case and API tests
 outputs/         generated triage results (gitignored)
 ```
 

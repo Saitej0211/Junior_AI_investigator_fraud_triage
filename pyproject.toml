@@ -13,3 +13,5 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Lets tests import the app/ and scripts/ folders from the project root
+pythonpath = ["."]

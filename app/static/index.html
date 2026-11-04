@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case Review</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Morning triage</h1>
+    <div id="counts" class="counts"></div>
+  </header>
+  <main>
+    <div id="alerts"></div>
+    <div id="error" class="error" hidden></div>
+    <table>
+      <thead>
+        <tr><th>Case</th><th>Tier</th><th>Score</th><th>Top signals</th></tr>
+      </thead>
+      <tbody id="queue"></tbody>
+    </table>
+    <!-- TODO (step 3): queue cards, filters, bulk-accept for Low -->
+    <!-- TODO (step 4): case detail view with accept/override and notes -->
+  </main>
+  <script src="/static/app.js"></script>
+</body>
+</html>
