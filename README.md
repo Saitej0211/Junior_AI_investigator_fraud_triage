@@ -13,17 +13,24 @@ investigator stays in control: they accept or override every call.
    each with its reason. Hard evidence (duplicate billing, overlapping
    providers) can never be auto-cleared.
 2. **Cross-case checks** (`src/triage/cross_case.py`). Facts that no single row
-   shows, such as two cases sharing one claim number, plus peer statistics by
-   care type.
-3. **LLM assessment** (`src/triage/llm.py`, *in progress*). Claude explains
-   the score in plain English and recommends the next step, using only the
-   facts it's given.
-4. **Grounding** (`src/triage/grounding.py`, *in progress*). Every value the
-   LLM cites is checked against the CSV. Disagreements with the rules score
-   are flagged, not hidden.
+   shows, such as two cases sharing one claim number (which also floors the
+   case to Medium), plus peer statistics by care type.
+3. **LLM assessment** (`src/triage/llm.py`). The LLM explains the score in
+   plain English, cites the fields behind it and recommends one of three
+   actions, using only the facts it's given. Groq is the default (free tier,
+   fast); set `LLM_PROVIDER` to `gemini` or `anthropic` to switch. Each
+   provider has fallback models, a 60-second timeout and retries, and if the
+   AI is unavailable the case still shows its rules score.
+4. **Grounding** (`src/triage/grounding.py`). Every value the LLM cites is
+   checked against the CSV. Wrong values, invented fields and disagreements
+   with the rules score are flagged in the UI, not hidden.
 5. **API and UI** (`app/`). A FastAPI app serves the cached results as JSON
    and a plain HTML/JS page that reads them, so it loads instantly and needs
    no frontend build step. Interactive API docs are at `/docs`.
+6. **Ask about a case** (`POST /api/cases/{id}/ask`). Click a case to open it
+   and ask follow-up questions. The LLM answers only from that case's facts,
+   says so when the data can't answer, and every field it cites is checked
+   the same way as the assessment.
 
 ## Run it locally
 
@@ -33,10 +40,15 @@ Requires Python 3.10+.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env              # then add your ANTHROPIC_API_KEY
+cp .env.example .env              # then add your GROQ_API_KEY
 python scripts/run_triage.py      # writes outputs/triage.json
 uvicorn app.main:app --reload
 ```
+
+Get a free Groq key at https://console.groq.com/keys. The batch takes a few
+minutes on the free tier; if it's interrupted, rerun the same command and it
+resumes. Without a key, `python scripts/run_triage.py --no-llm` produces the
+rules-only triage.
 
 Open http://localhost:8000 for the app, or http://localhost:8000/docs for the API.
 
@@ -53,7 +65,7 @@ data/            sample_cases.csv (50 synthetic referrals)
 src/triage/      core logic, with no UI code
 scripts/         batch triage job
 app/             FastAPI app (main.py) and static UI (static/)
-tests/           scoring, cross-case and API tests
+tests/           scoring, LLM/grounding (offline) and API tests
 outputs/         generated triage results (gitignored)
 ```
 

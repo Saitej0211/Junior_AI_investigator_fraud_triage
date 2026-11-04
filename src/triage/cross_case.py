@@ -18,8 +18,15 @@ def duplicate_claim_numbers(df: pd.DataFrame) -> dict[str, list[str]]:
     }
 
 
-def peer_stats(df: pd.DataFrame) -> pd.DataFrame:
-    """Median claim amount and visit frequency per care type, for 'vs normal' context."""
+def peer_stats(df: pd.DataFrame, baseline_ids: list[str] | None = None) -> pd.DataFrame:
+    """Median claim amount and visit frequency per care type, for 'vs normal' context.
+
+    Every case here is a fraud referral, so medians over the whole queue are
+    pulled up by the fraudulent ones. Pass `baseline_ids` (e.g. the Low-tier
+    cases) to compute "normal" from clean cases only.
+    """
+    if baseline_ids is not None:
+        df = df.loc[baseline_ids]
     return df.groupby("care_type").agg(
         cases=("case_id", "count"),
         median_amount_usd=("claim_amount_usd", "median"),
