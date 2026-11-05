@@ -1,0 +1,2037 @@
+{
+ "C1001": {
+  "summary": "The patient\u2019s claim uses the same claim number as another case, which is hard evidence of possible fraud. The claim amount and visit frequency are lower than usual, but the duplicate claim number is the key concern. The provider is relatively close, but that is not unusual.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "5949",
+    "why": "claim amount is 0.8 times the usual amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "visit frequency is 0.8 times the usual frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "19",
+    "why": "distance is 0.6 times the usual distance"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "-14",
+    "why": "the claim amount is 14% lower than similar cases"
+   },
+   {
+    "field": "hard_evidence",
+    "value": "the same claim number is also used on C1031",
+    "why": "duplicate claim number indicates possible fraud"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Request full documentation for both C1001 and C1031",
+   "Verify the claim number assignment process with the billing department",
+   "Conduct a detailed audit of services billed under the duplicate claim number"
+  ],
+  "open_questions": [
+   "Why was the same claim number assigned to two different cases?",
+   "Are the services described in both claims actually provided?",
+   "Is there any legitimate explanation for the duplicate claim number?"
+  ]
+ },
+ "C1002": {
+  "summary": "The claim matches typical assisted\u2011living patterns: $3,077 claim amount, five visits per week, and a 21\u2011mile distance, all close to usual levels. No duplicate services, weekend billing, or shared contacts appear. The referral system even shows a slight negative amount deviation, suggesting no anomaly.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3077",
+    "why": "matches typical claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "matches typical weekly visit frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "21",
+    "why": "about 1.1 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "0",
+    "why": "no duplicate services"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.02",
+    "why": "very low weekend billing"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "0",
+    "why": "no shared contacts"
+   }
+  ],
+  "risk_score": 5,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the finding in the case file",
+   "Mark the referral as resolved",
+   "Notify the senior investigator of the closure"
+  ],
+  "open_questions": [
+   "None; the data provided answers all key fraud indicators."
+  ]
+ },
+ "C1003": {
+  "summary": "The patient received an in\u2011home care claim of $5,175, about 1.2 times the usual amount for this care type, with the typical three visits per week and a short 6\u2011mile distance to the provider. No duplicate services, shared contacts, or weekend spikes were found, and the claim amount is only modestly higher than similar cases. Overall the indicators point to a likely false positive.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "5175",
+    "why": "claim amount is 1.2 times the usual for this care type"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "matches the typical weekly visit frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "6",
+    "why": "distance is 0.3 times the usual, indicating a nearby provider"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.06",
+    "why": "only 6% of billing occurred on weekends, not unusual"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "0",
+    "why": "no duplicate services were billed"
+   }
+  ],
+  "risk_score": 18,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "Is there any additional documentation from the provider confirming the services rendered?",
+   "Could there be any recent policy changes not captured in the data that affect billing patterns?",
+   "Are there any upcoming audits that might require a deeper look at similar claim amounts?"
+  ]
+ },
+ "C1004": {
+  "summary": "The patient\u2019s skilled\u2011nursing claim is for $1,062, which is only 20% of the usual amount for this care type, and the visit frequency matches the norm. The provider is relatively close (13\u202fmiles, about half the typical distance). No hard evidence of fraud appears.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1062",
+    "why": "Only 20% of the usual claim amount (compared_with_usual claim_amount_usd_times_usual = 0.2)"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "Matches the typical weekly visit frequency (compared_with_usual weekly_visit_frequency_times_usual = 1.0)"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "13",
+    "why": "About half the usual distance (compared_with_usual member_provider_distance_miles_times_usual = 0.5)"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the findings in the case file",
+   "Mark the referral as resolved",
+   "Monitor for any future anomalies with this provider"
+  ],
+  "open_questions": [
+   "Are there any undocumented services that might explain the lower claim amount?",
+   "Has the provider recently changed billing practices that could affect amounts?",
+   "Is there any pending audit that could provide additional context?"
+  ]
+ },
+ "C1005": {
+  "summary": "The patient received an adult day\u2011care claim for $1,970, which is about 30% of the usual amount for this service. The visits were four times a week, slightly below the typical five, and the provider is only 5\u202fmiles away, far closer than the usual 32\u202fmiles. No duplicate billing, shared contacts, or other red flags appear.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1970",
+    "why": "about 30% of the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "0.8 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "5",
+    "why": "0.2 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.11",
+    "why": "low proportion of weekend billing"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "2",
+    "why": "the system flagged the amount as 2% of similar cases"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the finding in the case file",
+   "Mark the referral as resolved",
+   "Monitor for any future similar alerts"
+  ],
+  "open_questions": [
+   "Are there any undocumented services provided on weekends?",
+   "Could there be a reason for the unusually short travel distance, such as a satellite clinic?",
+   "Is the provider\u2019s billing pattern consistent over time?"
+  ]
+ },
+ "C1006": {
+  "summary": "The patient received a Home Health Aide claim for $32,373, which is about 1.8 times the usual amount and 12 visits per week\u2014far above the typical 7. The provider was 205 miles away, roughly 5.7 times the usual distance, and the same service was billed twice with another provider overlapping the same time. Hard evidence of duplicate billing strongly suggests fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "32373",
+    "why": "much higher than typical $17,622"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "12",
+    "why": "1.7 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "205",
+    "why": "5.7 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "service was billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "patient shares a contact with the provider"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.44",
+    "why": "44% of the bills were on weekends"
+   },
+   {
+    "field": "service_overlap_other_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps from both providers",
+   "Request contracts and employment records for the provider",
+   "Interview the patient about the shared contact and service dates"
+  ],
+  "open_questions": [
+   "Can the patient confirm the actual dates and times of service?",
+   "Are there any explanations for the unusually long travel distance?",
+   "What is the nature of the shared contact between patient and provider?"
+  ]
+ },
+ "C1007": {
+  "summary": "The patient\u2019s assisted\u2011living claim is $3,952, about 1.3 times the usual amount for this care type and the referral system flags it at twice the typical amount. Weekly visits and distance are normal, and there are no hard\u2011evidence red flags. The pattern is somewhat unusual but not clearly fraudulent.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3952",
+    "why": "higher than typical $3077 (1.3 times usual)"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "2",
+    "why": "system flags amount at 200% of similar cases"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for itemized billing for this claim",
+   "Obtain the patient\u2019s care plan and authorization details",
+   "Compare this claim to other recent claims from the same provider"
+  ],
+  "open_questions": [
+   "What specific services are included in the $3,952 claim?",
+   "Was there any recent change in the patient\u2019s care needs that could justify a higher amount?",
+   "Are there any undocumented discounts or adjustments applied to this claim?"
+  ]
+ },
+ "C1008": {
+  "summary": "The patient received an in\u2011home care claim of $3,586, which is about 0.8\u202ftimes the usual amount and involved only two visits per week, lower than the typical three. The provider was 10\u202fmiles away, about half the usual distance, and there are no duplicate services, weekend spikes, or shared contacts. All indicators are below typical levels, suggesting a false positive.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3586",
+    "why": "0.8\u202ftimes the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "2",
+    "why": "0.7\u202ftimes the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "10",
+    "why": "0.5\u202ftimes the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.02",
+    "why": "Only 2% of billing occurred on weekends, well below concern thresholds"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "0",
+    "why": "No duplicate services were billed"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system"
+  ],
+  "open_questions": [
+   "None; the available data fully explains the claim pattern"
+  ]
+ },
+ "C1009": {
+  "summary": "The patient\u2019s claim is about 1.9 times the usual amount for assisted living, while the weekly visit frequency is lower than typical and the provider is slightly farther away. No hard evidence of fraud is present, but the high claim amount raises concern. Further documentation is needed to confirm the legitimacy.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "5922",
+    "why": "1.9 times the usual claim amount for this care type"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "0.8 times the typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "21",
+    "why": "1.1 times the usual distance"
+   }
+  ],
+  "risk_score": 55,
+  "risk_level": "High",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for itemized billing for the claim",
+   "Obtain a copy of the care plan showing services authorized",
+   "Verify the patient\u2019s residence distance from the provider"
+  ],
+  "open_questions": [
+   "Why is the claim amount nearly double the typical amount?",
+   "Are there any additional services bundled in this claim?",
+   "Is the lower visit frequency consistent with the patient\u2019s care needs?"
+  ]
+ },
+ "C1010": {
+  "summary": "The patient received a Home Health Aide claim of $4,802, which is only 30% of the usual amount for this care type. The provider visited twice a week, far below the typical 7 visits, and is only 4 miles away, much closer than the usual 36 miles. No red flags or hard evidence of fraud were found.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "4802",
+    "why": "30% of the usual claim amount for this care type"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "2",
+    "why": "30% of the usual weekly visit frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "4",
+    "why": "10% of the usual provider distance"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "10",
+    "why": "Only 10% of similar claims"
+   }
+  ],
+  "risk_score": 10,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [],
+  "open_questions": []
+ },
+ "C1011": {
+  "summary": "The patient\u2019s home health aide claim is about 20% higher than typical and includes more weekly visits and a long travel distance. The weekend billing ratio is relatively high, and a recent policy change flag is set, but there is no hard evidence of fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "20924",
+    "why": "1.2 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "9",
+    "why": "1.3 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "69",
+    "why": "1.9 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.31",
+    "why": "higher proportion of weekend services"
+   },
+   {
+    "field": "recent_policy_change_flag",
+    "value": "1",
+    "why": "policy recently changed, may affect billing"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for travel justification and mileage logs",
+   "Request a breakdown of weekend services and related documentation",
+   "Obtain any policy change notices that might explain billing changes"
+  ],
+  "open_questions": [
+   "Why is the provider traveling nearly twice the usual distance?",
+   "What explains the relatively high weekend billing ratio?",
+   "Did the recent policy change directly affect claim amounts or visit frequency?"
+  ]
+ },
+ "C1012": {
+  "summary": "The claim is for assisted living in Michigan, $3,859, about 1.3 times the usual amount but with a normal visit frequency and a shorter distance to the provider. Most metrics match typical patterns, and there are no hard\u2011evidence red flags.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3859",
+    "why": "higher than typical $3,077 (1.3 times usual)"
+   }
+  ],
+  "risk_score": 22,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for an itemized bill for the services billed",
+   "Confirm the provider\u2019s licensing and enrollment status",
+   "Compare this claim to the single prior claim in the last 12 months"
+  ],
+  "open_questions": [
+   "What specific services caused the higher claim amount?",
+   "Were any additional services provided that are not captured in the claim data?",
+   "Did any recent policy changes affect billing for this care type?"
+  ]
+ },
+ "C1013": {
+  "summary": "The patient received a home health aide claim for $858, which is far below the typical $17,622 for this care type. The service was provided twice a week, also well under the usual seven visits, and the provider was 23 miles away, shorter than the typical 36\u2011mile distance. No hard evidence of fraud appears.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "858",
+    "why": "far below typical amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "2",
+    "why": "only about 0.3 times the usual frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "23",
+    "why": "shorter than the typical distance"
+   }
+  ],
+  "risk_score": 10,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system"
+  ],
+  "open_questions": [
+   "None; the available data does not suggest any irregularities"
+  ]
+ },
+ "C1014": {
+  "summary": "The patient\u2019s home health aide claim is well below typical amounts and visit frequency, with a modest distance to the provider and no red flags like duplicate billing or shared contacts. The referral system flagged it, but the data show nothing suspicious.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "4776",
+    "why": "Only 0.3 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "0.4 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "18",
+    "why": "0.5 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.11",
+    "why": "Low proportion of weekend billing"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.12",
+    "why": "Low amount of round-dollar billing"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system"
+  ],
+  "open_questions": [
+   "None; the available data provide a clear picture"
+  ]
+ },
+ "C1015": {
+  "summary": "The patient\u2019s adult day care claim is $8,176, about 1.2 times the usual amount and 13% higher than similar cases. The provider billed the same service twice, and the visit frequency is 1.6 times typical with a high weekend billing ratio. The distance traveled is also higher than normal, raising suspicion.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "8176",
+    "why": "higher than typical $7062.5 and 13% above similar cases"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "8",
+    "why": "1.6 times the usual frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "42",
+    "why": "1.3 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.27",
+    "why": "relatively high proportion of weekend services"
+   },
+   {
+    "field": "hard_evidence",
+    "value": "the same service was billed twice",
+    "why": "direct duplicate billing"
+   }
+  ],
+  "risk_score": 82,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs from the provider",
+   "Request itemized invoices and timestamps for the duplicated service",
+   "Verify patient attendance records for the claimed dates"
+  ],
+  "open_questions": [
+   "Why was the same service billed twice?",
+   "Are there any authorized exceptions for duplicate billing in this case?",
+   "Can the provider explain the unusually high weekend billing ratio?"
+  ]
+ },
+ "C1016": {
+  "summary": "The patient received in\u2011home care with a claim of $11,232, which is about 2.5\u202ftimes the usual amount and 2.7\u202ftimes the typical weekly visit frequency. The provider billed the same service twice, a clear duplicate, and the visit frequency and amount are far above normal for Georgia. This pattern strongly suggests fraudulent billing.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "11232",
+    "why": "2.5\u202ftimes the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "8",
+    "why": "2.7\u202ftimes the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "28",
+    "why": "1.3\u202ftimes the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "the same service was billed twice"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "25",
+    "why": "the claim amount is 25\u202f% higher than similar cases"
+   }
+  ],
+  "risk_score": 78,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps for the duplicated service",
+   "Request provider\u2019s billing records and contracts for the period",
+   "Interview the patient or caregiver about the services received"
+  ],
+  "open_questions": [
+   "Did the provider submit separate documentation for each of the duplicated bills?",
+   "Are there any legitimate reasons for the unusually high visit frequency?",
+   "What internal controls does the provider have to prevent duplicate billing?"
+  ]
+ },
+ "C1017": {
+  "summary": "The patient received an in\u2011home care claim for $1,564, which is about 40% of the usual amount for this care type. The visit frequency matches the norm, and the provider lives only 6 miles away, roughly 30% of the typical distance. No red\u2011flag patterns or hard evidence appear, suggesting a false positive.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1564",
+    "why": "claim amount is 0.4 times the usual amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "matches typical weekly visits (1.0 times usual)"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "6",
+    "why": "about 0.3 times the usual distance"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data fully explain the claim."
+  ]
+ },
+ "C1018": {
+  "summary": "The patient\u2019s adult day care claim is for $2,972, which is about 0.4\u202ftimes the usual amount and the provider is only 10\u202fmiles away (0.3\u202ftimes the typical distance). Weekly visits match the norm and there are no red flags like duplicate billing or weekend spikes. Overall this looks like a routine claim.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "2972",
+    "why": "0.4\u202ftimes the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "matches the typical weekly visit frequency of 5.0"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "10",
+    "why": "0.3\u202ftimes the usual distance of 32.0 miles"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "8",
+    "why": "only 8\u202f% of the amount seen in similar cases"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data fully explains the claim."
+  ]
+ },
+ "C1019": {
+  "summary": "The claim is for adult day care at $14,722, about 2.1 times the usual amount and the patient lives 1.8 times farther from the provider than typical. Visit frequency matches the norm, but the referral system flagged the amount as 13% higher than similar cases. No hard evidence of fraud is present, but the cost and distance raise questions.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "14722",
+    "why": "2.1 times the usual claim amount"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "57",
+    "why": "1.8 times the usual distance"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "13",
+    "why": "Amount is 13% higher than similar cases"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for an itemized bill and justification for the high total cost",
+   "Verify travel justification for the 57\u2011mile distance between patient and provider",
+   "Confirm that no duplicate services were billed in the same period"
+  ],
+  "open_questions": [
+   "Why is the patient traveling 57 miles for adult day care?",
+   "Is there a contract or agreement that explains the higher-than\u2011usual claim amount?",
+   "Are there other providers in the area that could have delivered the same service at a lower cost?"
+  ]
+ },
+ "C1020": {
+  "summary": "The patient\u2019s claim amount is slightly below the usual for assisted\u2011living in Florida, and the weekly visit frequency matches the norm. However, the provider is unusually close to the patient\u2019s home (about 0.2\u202ftimes the typical distance), which can be a red flag. No hard evidence of fraud is present.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "2726",
+    "why": "0.9\u202ftimes the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "matches the typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "4",
+    "why": "0.2\u202ftimes the usual distance for this care type"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "4",
+    "why": "the system flagged the amount as 4\u202f% different from similar cases"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for a detailed service log for the claim period",
+   "Obtain travel logs or address verification to confirm the short distance",
+   "Request itemized billing to verify services rendered"
+  ],
+  "open_questions": [
+   "Why is the provider located so close to the patient\u2019s residence?",
+   "Are there any undocumented services that could explain the claim amount?",
+   "Is there any prior relationship between the patient and provider not captured in the data"
+  ]
+ },
+ "C1021": {
+  "summary": "The patient received a home health aide claim of $35,089, which is about twice the usual amount and 1.9 times the typical weekly visits. The service was billed twice and another provider billed for the same time, with a very high weekend billing ratio and long travel distance. These hard\u2011evidence red flags suggest possible fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "35089",
+    "why": "about 2.0 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "13",
+    "why": "1.9 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "246",
+    "why": "6.8 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.51",
+    "why": "over half of the visits billed on weekends"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "the same service was billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "patient shares a contact with the provider"
+   },
+   {
+    "field": "service_overlap_other_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   }
+  ],
+  "risk_score": 78,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps for the duplicated visits",
+   "Request contracts and communication records between the patient and both providers",
+   "Verify the legitimacy of the weekend visits and travel distance with the provider"
+  ],
+  "open_questions": [
+   "Can the provider explain why the same service appears on two separate claims?",
+   "What documentation exists to justify the unusually long travel distance?",
+   "Are there any internal notes about the recent policy change affecting billing practices?"
+  ]
+ },
+ "C1022": {
+  "summary": "The claim is for skilled nursing with a $4,554 bill, which matches the typical amount. The patient received only two visits a week, half the usual frequency, and lives very close to the provider, about one\u2011tenth the typical distance. No hard evidence of fraud appears.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "4554",
+    "why": "matches typical claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "2",
+    "why": "half the usual frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "3",
+    "why": "about 0.1 times the usual distance"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data provides a clear picture."
+  ]
+ },
+ "C1023": {
+  "summary": "The patient\u2019s assisted\u2011living claim is $10,169, about 3.3 times the usual amount, with 9 visits a week (1.8\u202f\u00d7\u202ftypical) and a 65\u2011mile distance to the provider (3.2\u202f\u00d7\u202fusual). A recent policy change and overlap with another provider raise concerns, and another provider billed for the same time.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "10169",
+    "why": "flagged by system"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "9",
+    "why": "higher than typical"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "65",
+    "why": "far beyond usual distance"
+   },
+   {
+    "field": "recent_policy_change_flag",
+    "value": "1",
+    "why": "recent change may affect billing"
+   },
+   {
+    "field": "hard_evidence",
+    "value": "another provider billed for the same time",
+    "why": "direct conflict evidence"
+   }
+  ],
+  "risk_score": 78,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain the other provider\u2019s invoice and time records",
+   "Request detailed service logs for the overlapping period",
+   "Verify the policy change impact on billing rules"
+  ],
+  "open_questions": [
+   "What specific services were billed by both providers?",
+   "Are there any documented approvals for the high visit frequency?",
+   "Can the patient\u2019s location justify the 65\u2011mile travel distance?"
+  ]
+ },
+ "C1024": {
+  "summary": "The patient received skilled nursing care with a claim of $66,655, far above the typical $4,488. Weekly visits were 18, about 4.5 times usual, and the provider was 114 miles away, roughly 4.6 times the norm. Hard evidence shows the same service was billed twice and another provider billed for the same time, indicating likely fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "66655",
+    "why": "much higher than typical $4,488"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "18",
+    "why": "about 4.5 times the usual frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "114",
+    "why": "about 4.6 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "service billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "patient shares contact with provider, raising conflict risk"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.53",
+    "why": "53% of visits on weekends, unusually high"
+   }
+  ],
+  "risk_score": 85,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps for the duplicated billing",
+   "Request contracts and communication records between the patient and both providers",
+   "Conduct interviews with the patient, provider, and any witnesses"
+  ],
+  "open_questions": [
+   "What exact services were duplicated and at what times?",
+   "Are there any legitimate explanations for the overlapping provider billing?",
+   "Can the patient confirm the need for such high frequency and distant care?"
+  ]
+ },
+ "C1025": {
+  "summary": "The patient\u2019s claim is for skilled nursing at $13,228, which is about 2.9 times the usual amount and includes 5 visits per week, 1.2 times typical. The provider is 60 miles away, roughly 2.4 times the normal distance, and 16% of billing occurs on weekends. No hard evidence of fraud is present, but several red flags suggest further review is needed.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "13228",
+    "why": "2.9 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "1.2 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "60",
+    "why": "2.4 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.16",
+    "why": "Higher proportion of weekend billing than typical"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.43",
+    "why": "43% of the bills are rounded amounts"
+   }
+  ],
+  "risk_score": 58,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for itemized service invoices and justification for the higher claim amount",
+   "Verify the provider\u2019s location and travel distance to confirm the 60\u2011mile claim",
+   "Review the impact of the recent policy change flagged in the case"
+  ],
+  "open_questions": [
+   "Why is the patient receiving care from a provider 60 miles away?",
+   "What justification exists for the claim amount being 2.9 times the usual?",
+   "Were any prior authorizations obtained for the increased weekly visit frequency?"
+  ]
+ },
+ "C1026": {
+  "summary": "The patient\u2019s adult day care claim is $8,665, about 1.2 times the usual amount, with six visits per week (1.2\u202f\u00d7\u202fusual) and a provider 54\u202fmiles away (1.7\u202f\u00d7\u202fusual). The weekend billing ratio is 30% and the system flags the amount as 19% higher than similar cases. No hard evidence of fraud is present.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "8665",
+    "why": "1.2\u202f\u00d7\u202fusual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "6",
+    "why": "1.2\u202f\u00d7\u202fusual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "54",
+    "why": "1.7\u202f\u00d7\u202fusual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.3",
+    "why": "30% of services billed on weekends"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "19",
+    "why": "19% higher than similar cases"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for a detailed service log for the claim period",
+   "Obtain travel justification for the 54\u2011mile distance",
+   "Verify the weekend services with the patient\u2019s schedule"
+  ],
+  "open_questions": [
+   "Why were 30% of the services billed on weekends?",
+   "Is there a documented reason for the provider being 54\u202fmiles from the patient\u2019s residence?",
+   "Are the six weekly visits medically necessary for this patient?"
+  ]
+ },
+ "C1027": {
+  "summary": "The claim is for skilled nursing with a $1,642 bill, about 40% of the usual amount for this care type. Visit frequency, distance, and weekend billing are all typical, and there are no duplicate services or shared contacts. Overall the data suggest a routine claim rather than fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1642",
+    "why": "claim amount is 0.4 times the usual amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "matches the typical weekly visit frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "25",
+    "why": "matches the typical distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.13",
+    "why": "no unusual weekend billing pattern"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.19",
+    "why": "billing amounts are not unusually rounded"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data fully explain the claim."
+  ]
+ },
+ "C1028": {
+  "summary": "The patient\u2019s assisted\u2011living claim is for $1,003, which is about 0.3 times the usual amount and only three visits per week (0.6\u202f\u00d7\u202ftypical). The provider is 24\u202fmiles away (1.2\u202f\u00d7\u202fusual), and there are no duplicate services, weekend spikes, or shared contacts. Overall the pattern looks typical and not suspicious.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1003",
+    "why": "0.3\u202f\u00d7\u202fthe usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "0.6\u202f\u00d7\u202fthe usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "24",
+    "why": "1.2\u202f\u00d7\u202fthe usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.12",
+    "why": "low weekend billing"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.16",
+    "why": "few round\u2011dollar bills"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data fully explain the claim pattern."
+  ]
+ },
+ "C1029": {
+  "summary": "The patient\u2019s assisted\u2011living claim is for $1,117, which is only 40% of the usual amount for this care type, and the weekly visit frequency matches the norm. The provider is 8\u202fmiles away, about 0.4\u202ftimes the typical distance, and there are no duplicate services, shared contacts, or prior claims. Overall the pattern looks typical and low\u2011risk.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1117",
+    "why": "Only 40% of the usual claim amount for assisted living"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "Matches the typical weekly visit frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "8",
+    "why": "About 0.4\u202ftimes the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.12",
+    "why": "Low proportion of weekend billing"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.07",
+    "why": "Few round\u2011dollar amounts, which is typical"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system"
+  ],
+  "open_questions": [
+   "None; the available data fully explain the claim pattern"
+  ]
+ },
+ "C1030": {
+  "summary": "The patient received in\u2011home care with a claim of $39,512, which is about 8.9 times the usual amount and 4.7 times the typical weekly visit frequency. The provider billed 14 visits a week, traveled 92 miles (about 4.2 times usual), and the same service was billed twice with another provider overlapping the same time. These hard\u2011evidence red flags strongly suggest fraudulent activity.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "39512",
+    "why": "much higher than typical $4,420.5"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "14",
+    "why": "far above typical 3.0 visits per week"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "92",
+    "why": "about 4.2 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "the same service was billed twice"
+   },
+   {
+    "field": "service_overlap_other_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps from both providers",
+   "Request travel logs or mileage verification for the provider",
+   "Interview the patient and both providers about the overlapping services"
+  ],
+  "open_questions": [
+   "What exact services were claimed during the overlapping time periods?",
+   "Are there any legitimate reasons for the high travel distance and visit frequency?",
+   "Can the provider supply documentation proving separate patient encounters?"
+  ]
+ },
+ "C1031": {
+  "summary": "The patient\u2019s claim is unusually large and frequent, with 14 weekly visits, a $29,702 bill, and a provider 84 miles away\u2014far above typical levels. Hard evidence shows the same service was billed twice, another provider billed the same time, and the claim number is shared with another case, indicating likely fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "29702",
+    "why": "6.7 times the usual amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "14",
+    "why": "4.7 times the usual frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "84",
+    "why": "3.8 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "the same service was billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "133",
+    "why": "the claim amount is 133% of similar cases"
+   }
+  ],
+  "risk_score": 85,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs for the dates billed",
+   "Request contracts and agreements for both providers involved",
+   "Interview the patient and both providers about the overlapping services"
+  ],
+  "open_questions": [
+   "What exact services were provided during the overlapping time slots?",
+   "Are there any internal notes explaining the shared claim number?",
+   "Can the patient confirm the need for such high frequency of visits?"
+  ]
+ },
+ "C1032": {
+  "summary": "The patient received a Home Health Aide claim for $17,622 on 2026-01-10. The claim was billed twice for the same service, which is hard evidence of potential fraud. Weekly visits were slightly below typical and the distance matches usual patterns, but the duplicate billing overrides other factors.",
+  "key_facts": [
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "Indicates the same service was billed more than once"
+   },
+   {
+    "field": "claim_amount_usd",
+    "value": "17622",
+    "why": "Matches typical amount, but duplicate billing is concerning"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "6",
+    "why": "Slightly below the typical 7 visits per week"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "36",
+    "why": "Distance is typical for this region"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "43",
+    "why": "Claim amount is 43% of what the system expects compared to similar cases"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs for the dates in question",
+   "Request provider\u2019s billing records and contracts",
+   "Interview the patient and caregiver about the services received"
+  ],
+  "open_questions": [
+   "What specific dates were the duplicate services billed?",
+   "Did the provider have authorization for the frequency of visits?",
+   "Are there any other claims with similar duplicate billing patterns from this provider?"
+  ]
+ },
+ "C1033": {
+  "summary": "The patient\u2019s skilled\u2011nursing claim is $9,083, about 2.0 times the usual amount, and the service was billed twice, which is hard evidence of duplicate billing. The weekly visit frequency is 7, 1.8 times typical, and the provider is 52 miles away, 2.1 times the usual distance. These red flags suggest intentional overbilling.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "9083",
+    "why": "about 2.0 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "7",
+    "why": "1.8 times the typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "52",
+    "why": "2.1 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "the same service was billed twice"
+   },
+   {
+    "field": "hard_evidence",
+    "value": "the same service was billed twice",
+    "why": "direct proof of duplicate billing"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps for the duplicated billing",
+   "Request provider\u2019s explanation and supporting documentation for the visits",
+   "Compare this claim to other recent claims from the same provider for patterns"
+  ],
+  "open_questions": [
+   "Why was the same service billed twice on the same claim?",
+   "Are there any legitimate clinical reasons for the high visit frequency?",
+   "Is the long travel distance justified by the patient\u2019s condition?"
+  ]
+ },
+ "C1034": {
+  "summary": "The patient received adult day care services billed at $44,612, which is about 6.3 times the usual amount and 3.6 times the typical weekly visit frequency. The provider was 75 miles away (2.3 times usual distance) and billed on weekends for 53% of visits. Hard evidence shows the same service was billed twice and another provider billed for the same time.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "44612",
+    "why": "much higher than typical $7,062.5"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "18",
+    "why": "far above typical 5.0 visits per week"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "75",
+    "why": "more than double the typical 32.0 miles"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.53",
+    "why": "over half of visits billed on weekends"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "service billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "patient shares contact with provider, raising conflict risk"
+   },
+   {
+    "field": "service_overlap_other_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   }
+  ],
+  "risk_score": 82,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps for the duplicated billing",
+   "Request contracts and communication records between the two providers",
+   "Interview the patient and both providers about the overlapping services"
+  ],
+  "open_questions": [
+   "Can the patient confirm the actual number of visits received?",
+   "Are there any authorizations or approvals for the high weekend billing ratio?",
+   "What explanations do the providers give for the duplicate and overlapping charges?"
+  ]
+ },
+ "C1035": {
+  "summary": "The patient received skilled nursing care with a claim amount close to the usual $4,488 and a lower-than-usual visit frequency and travel distance. No duplicate services, weekend billing, or other red flags appear. Overall the pattern looks typical for this care type.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "4422",
+    "why": "claim amount is about the same as typical ($4488)"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data does not raise further concerns."
+  ]
+ },
+ "C1036": {
+  "summary": "The patient received Home Health Aide services with a claim of $24,120, which is 1.4 times the usual amount and 13 visits per week\u2014about 1.9 times the typical frequency. The provider was 247 miles away (about 6.9 times usual distance) and the same service was billed twice, with another provider billing for the same time. These hard\u2011evidence red flags suggest likely fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "24120",
+    "why": "higher than typical $17,622 and 1.4 times usual"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "13",
+    "why": "much higher than typical 7 and 1.9 times usual"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "247",
+    "why": "far beyond typical 36 and 6.9 times usual"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "the same service was billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "patient shares contact with provider, raising conflict risk"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.5",
+    "why": "50% of visits billed on weekends, unusual pattern"
+   },
+   {
+    "field": "service_overlap_other_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs and timestamps for the duplicated billing",
+   "Request contracts and communication records between the two providers",
+   "Interview the patient and both providers about the overlapping services"
+  ],
+  "open_questions": [
+   "What exact times were the duplicated services performed?",
+   "Are there any authorizations or notes justifying the high visit frequency?",
+   "Why was the provider located so far from the patient\u2019s residence?"
+  ]
+ },
+ "C1037": {
+  "summary": "The patient received adult day care services that were billed at $47,846, which is about 6.8 times the usual amount for this care type. The provider billed 16 visits per week, three times the typical frequency, and traveled 236 miles\u2014about 7.4 times the usual distance. Hard evidence shows the same service was billed twice and another provider billed for the same time, indicating possible duplicate billing.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "47846",
+    "why": "much higher than typical $7,062.5"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "16",
+    "why": "far above typical 5 visits per week"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "236",
+    "why": "much farther than typical 32 miles"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "service billed twice"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "1",
+    "why": "patient shares contact with provider, raising conflict risk"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.72",
+    "why": "high proportion of weekend billing"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "143",
+    "why": "billing amount 143% of similar cases"
+   }
+  ],
+  "risk_score": 85,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Request all original service logs and timestamps for the duplicated service",
+   "Obtain contracts and communication records between the patient and both providers",
+   "Compare the overlapping billing periods with provider schedules"
+  ],
+  "open_questions": [
+   "What exact dates and times were the duplicate services rendered?",
+   "Are there any authorizations or approvals for the high weekend billing ratio?",
+   "Can the patient confirm which provider actually delivered the services?"
+  ]
+ },
+ "C1038": {
+  "summary": "The patient\u2019s in\u2011home care claim is for $2,592, which is about 0.6\u202ftimes the usual amount for this care type. The weekly visit frequency (3) and distance to the provider (23\u202fmiles) match typical patterns, and there are no duplicate services or shared contacts. Overall the data look normal, suggesting a false positive.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "2592",
+    "why": "lower than typical claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "matches typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "23",
+    "why": "about the same as usual distance"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "2",
+    "why": "only 2\u202f% higher than similar cases"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data fully explain the claim."
+  ]
+ },
+ "C1039": {
+  "summary": "The patient\u2019s claim is $4,425, about 1.4 times the usual amount for assisted living in MA, with a normal weekly visit frequency and a slightly shorter distance to the provider. The referral system flagged the amount as 8% higher than similar cases, and there is a modest round\u2011dollar billing pattern. No hard evidence of fraud is present, but the higher claim amount warrants further review.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "4425",
+    "why": "higher than typical $3077 (1.4 times usual)"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "matches typical weekly visits (1.0 times usual)"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "18",
+    "why": "slightly shorter than typical 20 miles (0.9 times usual)"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "8",
+    "why": "system flagged amount as 8% higher than similar cases"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for an itemized bill and supporting documentation for the $4,425 claim",
+   "Verify the provider\u2019s licensing and enrollment status in MA",
+   "Compare this claim to other recent assisted\u2011living claims in the region for consistency"
+  ],
+  "open_questions": [
+   "What specific services or items account for the higher claim amount?",
+   "Are there any undocumented or supplemental services that were billed?",
+   "Did any recent policy changes affect billing practices for assisted\u2011living claims?"
+  ]
+ },
+ "C1040": {
+  "summary": "The patient\u2019s claim is about 4.2 times the usual amount and 1.6 times the typical weekly visit frequency, with a slightly longer travel distance. The referral engine flagged it as 30% higher than similar cases. No hard evidence is present, but the elevated amounts suggest a need for more information.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "12839",
+    "why": "4.2 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "8",
+    "why": "1.6 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "24",
+    "why": "1.2 times the usual distance"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "30",
+    "why": "30% higher than similar cases"
+   }
+  ],
+  "risk_score": 55,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for an itemized bill and supporting clinical notes",
+   "Obtain the patient\u2019s address verification to confirm travel distance",
+   "Compare this claim to the other three claims the patient filed in the past 12 months"
+  ],
+  "open_questions": [
+   "What specific services caused the claim to be 4.2 times higher than usual?",
+   "Why were there 8 visits per week instead of the typical 5?",
+   "Is there a legitimate reason for the patient traveling 24 miles to the provider?"
+  ]
+ },
+ "C1041": {
+  "summary": "The patient received an adult day care claim of $1,326, which is about 0.2 times the usual amount and the distance to the provider is 14 miles (about 0.4 times the usual). Weekly visits match the typical frequency and there are no red flags like duplicate billing or weekend spikes. Overall the data looks typical for this care type.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1326",
+    "why": "claim amount is low compared to typical $7,062.5"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "5",
+    "why": "matches typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "14",
+    "why": "distance is shorter than typical 32 miles"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.08",
+    "why": "only 8% of bills on weekends, low risk"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "0",
+    "why": "no duplicate services"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "0",
+    "why": "no shared contact indicating collusion"
+   }
+  ],
+  "risk_score": 12,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system"
+  ],
+  "open_questions": [
+   "None; the available data fully explains the claim"
+  ]
+ },
+ "C1042": {
+  "summary": "The patient\u2019s home health aide claim is $20,629, about 1.2 times the usual amount and the provider is 39 miles away, roughly 1.1 times the typical distance. The weekly visit frequency matches the norm, but 44% of the bills are rounded and 28% of services were billed on weekends, which is higher than expected. No hard evidence of fraud is present, but the pattern warrants further review.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "20629",
+    "why": "1.2 times the usual claim amount"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "39",
+    "why": "1.1 times the usual distance"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "7",
+    "why": "matches typical weekly visits"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.28",
+    "why": "higher proportion of weekend billing than typical"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.44",
+    "why": "44% of the bills are rounded"
+   }
+  ],
+  "risk_score": 45,
+  "risk_level": "Medium",
+  "confidence": "Medium",
+  "recommended_action": "Request documentation",
+  "next_steps": [
+   "Ask the provider for detailed service logs and itemized invoices",
+   "Verify the justification for the higher claim amount compared to similar cases",
+   "Confirm the provider\u2019s travel policy for the 39\u2011mile distance"
+  ],
+  "open_questions": [
+   "Why is a large share of the bills rounded to whole dollars?",
+   "What explains the relatively high weekend billing ratio?",
+   "Is there any additional context for the slightly higher claim amount?"
+  ]
+ },
+ "C1043": {
+  "summary": "The patient\u2019s adult day care claim is for $3,985, which is about 0.6 times the usual amount and the service was provided four times a week, about 0.8 of the typical frequency. The provider is 22 miles away, roughly 0.7 of the normal distance, and there are no duplicate services, shared contacts, or weekend spikes. Overall the pattern looks typical and not suspicious.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3985",
+    "why": "lower than typical claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "slightly below typical frequency"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "22",
+    "why": "shorter than usual distance"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "8",
+    "why": "the system flagged the amount as only 8% different from similar cases"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "Is there any undocumented supplemental billing for this patient?",
+   "Could there be a recent change in the provider\u2019s pricing model not captured here?",
+   "Are there any pending audits for this provider that might affect interpretation?"
+  ]
+ },
+ "C1044": {
+  "summary": "The patient\u2019s home health aide claim is far below typical amounts and visit frequency, and the provider is very close to the patient\u2019s home. All metrics are lower than usual, and there are no red flags or hard evidence of fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "4027",
+    "why": "claim amount is 0.2 times the usual"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "2",
+    "why": "visit frequency is 0.3 times the usual"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "3",
+    "why": "distance is 0.1 times the usual"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the findings in the case file",
+   "Mark the referral as resolved",
+   "Notify the automated engine team of the false positive"
+  ],
+  "open_questions": [
+   "Are there any undocumented services that might affect the claim amount?",
+   "Could there be a recent change in the patient\u2019s care plan not captured here?",
+   "Is the provider\u2019s billing pattern consistent with other recent claims?"
+  ]
+ },
+ "C1045": {
+  "summary": "The patient\u2019s skilled nursing claim is for $3,477, which is about 0.8 times the usual amount and matches the typical weekly visit frequency and distance. There are no duplicate services, weekend spikes, or shared contacts, and the referral system flagged it slightly lower than similar cases. Overall, the data show no clear fraud indicators.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3477",
+    "why": "lower than typical $4,488 (0.8 times usual)"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "matches typical frequency (1.0 times usual)"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "25",
+    "why": "matches typical distance (1.0 times usual)"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "0",
+    "why": "no duplicate services"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.04",
+    "why": "low weekend billing"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "0",
+    "why": "no shared contacts"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "High",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data provide a clear picture."
+  ]
+ },
+ "C1046": {
+  "summary": "The claim is for in\u2011home care in Missouri with a $3,666 bill, which is about 0.8 times the usual amount for this care type. The weekly visit frequency and distance to the provider match typical patterns, and there are no duplicate services, shared contacts, or policy flags. Overall the data look normal, suggesting a false positive.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "3666",
+    "why": "0.8 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "matches typical weekly visits (1.0 times usual)"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "21",
+    "why": "about the same as typical distance (1.0 times usual)"
+   },
+   {
+    "field": "referral_system_amount_vs_similar_pct",
+    "value": "5",
+    "why": "only 5% higher than similar cases"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the review and close the case in the system."
+  ],
+  "open_questions": [
+   "None; the available data fully explain the claim."
+  ]
+ },
+ "C1047": {
+  "summary": "The patient\u2019s assisted\u2011living claim is smaller and less frequent than usual, with a short 16\u2011mile distance to the provider and only a few weekend visits. All metrics are below typical levels, and there are no red flags or hard evidence of fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "2754",
+    "why": "0.9 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "3",
+    "why": "0.6 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "16",
+    "why": "0.8 times the usual distance"
+   },
+   {
+    "field": "weekend_billing_ratio",
+    "value": "0.02",
+    "why": "only 2% of visits billed on weekends"
+   },
+   {
+    "field": "round_dollar_billing_ratio",
+    "value": "0.09",
+    "why": "9% of bills are rounded to whole dollars"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the comparison with typical metrics in the case file",
+   "Mark the referral as reviewed and closed",
+   "Monitor future claims for any change in pattern"
+  ],
+  "open_questions": [
+   "Will the provider\u2019s billing patterns remain consistent over the next few months?",
+   "Are there any upcoming policy changes that could affect claim amounts?",
+   "Is there any additional context about the patient\u2019s care needs that isn\u2019t captured here?"
+  ]
+ },
+ "C1048": {
+  "summary": "The patient\u2019s assisted\u2011living claim is for $2,141, which is about 0.7\u202ftimes the usual amount and includes only four weekly visits, 0.8\u202ftimes the typical frequency. The provider is very close, only 4\u202fmiles away (0.2\u202ftimes the usual distance). No hard evidence of fraud appears.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "2141",
+    "why": "0.7\u202ftimes the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "0.8\u202ftimes the typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "4",
+    "why": "0.2\u202ftimes the usual distance"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the comparison with typical claim amounts and visit frequency",
+   "Archive the case for future reference",
+   "Monitor for any future anomalies with this provider"
+  ],
+  "open_questions": [
+   "Are there any undocumented services that might explain the lower claim amount?",
+   "Has the provider recently changed billing practices that could affect these metrics?",
+   "Is there any additional context about the patient\u2019s care plan that isn\u2019t captured here?"
+  ]
+ },
+ "C1049": {
+  "summary": "The patient\u2019s assisted\u2011living claim is about half the usual amount and has slightly fewer weekly visits than typical, with a modest distance to the provider. No duplicate services, shared contacts, or other red flags appear, and the referral system only flags a 10% amount difference. This pattern usually points to a legitimate claim.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "1634",
+    "why": "0.5 times the usual claim amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "4",
+    "why": "0.8 times the usual weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "22",
+    "why": "1.1 times the usual distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "0",
+    "why": "no duplicate services"
+   },
+   {
+    "field": "shared_contact_with_provider",
+    "value": "0",
+    "why": "no shared contact"
+   }
+  ],
+  "risk_score": 15,
+  "risk_level": "Low",
+  "confidence": "Medium",
+  "recommended_action": "Close as false positive",
+  "next_steps": [
+   "Document the comparison with typical claim amounts and visit frequency",
+   "Archive the case for future reference",
+   "Notify the automated engine team of the false\u2011positive outcome"
+  ],
+  "open_questions": [
+   "Are there any undocumented adjustments to the claim that could affect the amount?",
+   "Has the provider recently changed billing practices that aren\u2019t reflected in the data?",
+   "Could there be any upcoming policy changes in FL that might alter typical patterns?"
+  ]
+ },
+ "C1050": {
+  "summary": "The patient received a Home Health Aide claim for $7,259, which is only 40% of the usual amount but was billed twice for the same service, and another provider also billed for the same time. The visit frequency matches the norm, but the provider is unusually close (20 miles vs 36 miles typical) and a recent policy change is flagged. Hard evidence of duplicate billing strongly suggests fraud.",
+  "key_facts": [
+   {
+    "field": "claim_amount_usd",
+    "value": "7259",
+    "why": "claim amount is 40% of the usual amount"
+   },
+   {
+    "field": "weekly_visit_frequency",
+    "value": "7",
+    "why": "matches typical weekly visits"
+   },
+   {
+    "field": "member_provider_distance_miles",
+    "value": "20",
+    "why": "provider is closer than typical distance"
+   },
+   {
+    "field": "duplicate_service_billed",
+    "value": "1",
+    "why": "service was billed twice"
+   },
+   {
+    "field": "service_overlap_other_provider",
+    "value": "1",
+    "why": "another provider billed for the same time"
+   },
+   {
+    "field": "recent_policy_change_flag",
+    "value": "1",
+    "why": "policy change may affect billing patterns"
+   }
+  ],
+  "risk_score": 80,
+  "risk_level": "High",
+  "confidence": "High",
+  "recommended_action": "Escalate to SIU",
+  "next_steps": [
+   "Obtain detailed service logs for the duplicated dates",
+   "Request contracts and agreements for both providers involved",
+   "Interview the patient and providers about the overlapping services"
+  ],
+  "open_questions": [
+   "What exact dates and times were the duplicate services billed?",
+   "Are there any authorizations or notes justifying overlapping services?",
+   "Did the recent policy change alter billing codes or limits for this care type?"
+  ]
+ }
+}

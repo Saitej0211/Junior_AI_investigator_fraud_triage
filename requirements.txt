@@ -1,12 +1,6 @@
 pandas==2.2.2
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-httpx==0.28.1
 groq==1.7.0
-google-genai==2.34.0
-anthropic==2.4.0
+pydantic>=2
 python-dotenv==1.0.1
-pytest==8.3.3
-
-# Installs src/triage as an importable package
--e .
+notebook==7.3.2
+ipywidgets==8.1.5
