@@ -7,3 +7,4 @@ outputs/*
 !outputs/.gitkeep
 *.db
 .DS_Store
+.ipynb_checkpoints/
