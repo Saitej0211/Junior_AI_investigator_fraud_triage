@@ -8,7 +8,11 @@ investigator reviews the queue, asks questions and accepts or overrides every
 call.
 
 The logic is in one notebook, [fraud_triage.ipynb](fraud_triage.ipynb); the
-page it serves is in [web/](web):
+page it serves is in [web/](web).
+
+![How it works: load the cases, add facts across the queue, the AI assesses each case, its work is checked, and the investigator reviews the results in a web app](docs/pipeline.svg)
+
+The notebook's sections, in order:
 
 1. **The cases, and what no single row shows.** Loads the 50 cases and adds
    cross-case facts: other cases with the same claim number, and how the
@@ -36,6 +40,45 @@ page it serves is in [web/](web):
 AI results are saved to `data/ai_assessments.json`, so the notebook opens
 instantly and reviewers can browse every case without a key (only questions
 need one). Delete the file to assess again (about 3 minutes).
+
+## How the app fits together
+
+The page in `web/` talks to a small server started by the notebook's last
+cell. The server reads the cases and saved AI results, appends every decision
+and note to the audit trail, and sends follow-up questions to the AI, whose
+answers are fact-checked before the page shows them.
+
+```mermaid
+flowchart LR
+    B["Browser<br/>web/index.html, app.js, styles.css"] -- "load the queue and a case,<br/>send decisions, notes, questions" --> S["Server in the notebook<br/>(last cell, Python's http.server)"]
+    S -- "reads" --> D[("data/<br/>sample_cases.csv<br/>ai_assessments.json")]
+    S -- "appends decisions and notes" --> A[("outputs/audit.csv")]
+    S -- "follow-up question" --> G["Groq AI"]
+    G -- "answer and the facts it used" --> C{"Fact-checker"}
+    C -- "each fact ✓ or ⚠" --> S
+```
+
+## How a case moves forward
+
+Every case starts "to review" with the AI's assessment. The investigator
+accepts the AI's call or overrides it with a risk level, an action and a
+reason; either way the case moves to the stage that action leads to. Notes and
+questions can be added at any point, and everything is kept in the audit trail.
+
+```mermaid
+flowchart LR
+    Q["To review<br/>AI score, summary,<br/>key facts, suggested action"] --> D{"Investigator"}
+    D -- "Accept the AI's call" --> N["Chosen action"]
+    D -- "Override<br/>with a reason" --> N
+    D -. "add a note or<br/>ask a question" .-> T["Stays on the case,<br/>kept in the audit trail"]
+    N --> E["Escalated to SIU"]
+    N --> R["Documents requested"]
+    N --> C["Closed<br/>(false positive)"]
+```
+
+Cases with hard evidence (double billing, overlapping visits, a shared claim
+number) are never closed by the AI's call, and clean Low cases can be closed
+together in one click.
 
 ## Run it in Google Colab
 

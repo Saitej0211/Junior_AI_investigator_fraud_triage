@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 320" width="920" height="320"
+     font-family="Inter, -apple-system, 'Segoe UI', Arial, sans-serif" role="img"
+     aria-label="How the fraud triage prototype works, from the CSV to the investigator">
+  <title>How it works</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#1f2328"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2b4acb"/>
+    </marker>
+    <style>
+      .box { stroke: #d0d4da; stroke-width: 1; rx: 10; }
+      .tag { font-size: 10.5px; font-weight: 600; fill: #6b7280; letter-spacing: .04em; }
+      .title { font-size: 14px; font-weight: 700; fill: #1f2328; }
+      .sub { font-size: 11.5px; fill: #4b5563; }
+      .edge { stroke: #1f2328; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+      .loop { stroke: #2b4acb; stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; marker-end: url(#arrow-blue); }
+      .note { font-size: 11px; fill: #2b4acb; font-style: italic; }
+    </style>
+  </defs>
+  <rect width="920" height="320" fill="#ffffff"/>
+
+  <!-- Top row: the work done before anyone looks -->
+  <text x="20" y="16" class="tag">BEFORE AN INVESTIGATOR LOOKS (NOTEBOOK SECTIONS 1-3)</text>
+  <rect class="box" x="20" y="28" width="196" height="86" fill="#dbe7fb"/>
+  <text x="34" y="50" class="tag">SECTION 1</text>
+  <text x="34" y="70" class="title">Load the cases</text>
+  <text x="34" y="88" class="sub">50 referrals from</text>
+  <text x="34" y="103" class="sub">data/sample_cases.csv</text>
+
+  <rect class="box" x="254" y="28" width="196" height="86" fill="#e3f6ec"/>
+  <text x="268" y="50" class="tag">SECTION 1</text>
+  <text x="268" y="70" class="title">Facts across the queue</text>
+  <text x="268" y="88" class="sub">shared claim numbers, "× the</text>
+  <text x="268" y="103" class="sub">usual", hard evidence</text>
+
+  <rect class="box" x="488" y="28" width="196" height="86" fill="#ece6fb"/>
+  <text x="502" y="50" class="tag">SECTION 2</text>
+  <text x="502" y="70" class="title">The AI assesses</text>
+  <text x="502" y="88" class="sub">Groq: score 0-100, level,</text>
+  <text x="502" y="103" class="sub">summary, key facts, action</text>
+
+  <rect class="box" x="722" y="28" width="178" height="86" fill="#fef0e1"/>
+  <text x="736" y="50" class="tag">SECTION 3</text>
+  <text x="736" y="70" class="title">Check its work</text>
+  <text x="736" y="88" class="sub">every cited fact ✓ / ⚠;</text>
+  <text x="736" y="103" class="sub">hard evidence never closed</text>
+
+  <path class="edge" d="M216 71 H252"/>
+  <path class="edge" d="M450 71 H486"/>
+  <path class="edge" d="M684 71 H720"/>
+
+  <!-- Bottom row: the investigator's side -->
+  <text x="20" y="190" class="tag">THE INVESTIGATOR (NOTEBOOK SECTION 5, THE WEB APP)</text>
+  <rect class="box" x="722" y="202" width="178" height="86" fill="#f3f4f6"/>
+  <text x="736" y="224" class="tag">SAVED</text>
+  <text x="736" y="244" class="title">AI results</text>
+  <text x="736" y="262" class="sub">data/ai_assessments.json</text>
+  <text x="736" y="277" class="sub">(reused, no AI calls)</text>
+
+  <rect class="box" x="488" y="202" width="196" height="86" fill="#fde8e6"/>
+  <text x="502" y="224" class="tag">SECTION 5</text>
+  <text x="502" y="244" class="title">Web app</text>
+  <text x="502" y="262" class="sub">localhost:8000: queue,</text>
+  <text x="502" y="277" class="sub">case view, chat</text>
+
+  <rect class="box" x="254" y="202" width="196" height="86" fill="#dbe7fb"/>
+  <text x="268" y="224" class="tag">HUMAN</text>
+  <text x="268" y="244" class="title">Investigator decides</text>
+  <text x="268" y="262" class="sub">accept or override with a</text>
+  <text x="268" y="277" class="sub">reason, add notes</text>
+
+  <rect class="box" x="20" y="202" width="196" height="86" fill="#f3f4f6"/>
+  <text x="34" y="224" class="tag">AUDIT TRAIL</text>
+  <text x="34" y="244" class="title">Case moves forward</text>
+  <text x="34" y="262" class="sub">escalated / documents /</text>
+  <text x="34" y="277" class="sub">closed, in outputs/audit.csv</text>
+
+  <path class="edge" d="M811 114 V200"/>
+  <path class="edge" d="M722 245 H686"/>
+  <path class="edge" d="M488 245 H452"/>
+  <path class="edge" d="M254 245 H218"/>
+
+  <!-- Follow-up questions go back to the AI, checked the same way -->
+  <path class="loop" d="M400 202 C 420 160, 520 160, 560 116"/>
+  <text x="478" y="182" class="note">follow-up questions</text>
+</svg>
