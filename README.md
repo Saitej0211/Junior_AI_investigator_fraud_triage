@@ -19,11 +19,15 @@ Everything is in one notebook, [fraud_triage.ipynb](fraud_triage.ipynb):
    data (✓ or ⚠). Hard evidence (double billing, overlapping visits, a shared
    claim number) can never be closed: the AI is told so, and any case it would
    close or rate Low anyway is flagged.
-4. **The queue**, highest AI risk first.
-5. **Review a case.** Pick a case to see the assessment, ask follow-up
-   questions (answered only from that case's facts, and checked the same way),
-   accept or override the AI's call with a reason, and leave notes. Decisions
-   and notes go to `outputs/audit.csv`, an append-only audit trail.
+4. **Plain-English labels and the look of the app.**
+5. **Review the queue**, an app inside the notebook: summary cards, filters
+   (by risk level, "needs a closer look", hide reviewed), the queue highest AI
+   risk first, and a sidebar for the open case (click its case ID). There you
+   see the AI's score and reasons, accept or override its call with a reason,
+   leave notes, see the decision history and ask follow-up questions (answered
+   only from that case's facts, and checked the same way). Clean Low cases can
+   be accepted in one click. Decisions and notes go to `outputs/audit.csv`, an
+   append-only audit trail.
 
 AI results are saved to `data/ai_assessments.json`, so the notebook opens
 instantly and reviewers can browse every case without a key (only questions
