@@ -20,7 +20,7 @@ OUTPUT_DIR = PROJECT_ROOT / "outputs"
 @dataclass(frozen=True)
 class Signal:
     column: str
-    label: str
+    label: str  # plain English: shown to investigators who don't know the data
     weight: float
     rationale: str
     # Numeric signals only. At or above `elevated` earns half the weight,
@@ -37,32 +37,32 @@ class Signal:
 
 SIGNALS: list[Signal] = [
     # Hard evidence
-    Signal("duplicate_service_billed", "Duplicate service billed", 3.0,
+    Signal("duplicate_service_billed", "Same service billed twice", 3.0,
            "The same service was billed more than once."),
-    Signal("service_overlap_other_provider", "Overlaps another provider", 3.0,
+    Signal("service_overlap_other_provider", "Another provider billed for the same time", 3.0,
            "Another provider billed for the same time; the member can't be in two places."),
     # Strong patterns
-    Signal("shared_contact_with_provider", "Shares contact info with provider", 2.5,
+    Signal("shared_contact_with_provider", "Patient and provider share contact details", 2.5,
            "Member and provider share a phone, address or email: possible collusion."),
-    Signal("amount_vs_peer_avg_pct", "Amount vs peer average", 2.0,
+    Signal("amount_vs_peer_avg_pct", "Amount compared with similar claims", 2.0,
            "Billing well above similar claims suggests upcoding or padding.",
            elevated=25, severe=75, unit="%"),
     Signal("weekly_visit_frequency", "Visits per week", 2.0,
            "More than one visit a day is rarely plausible for these care types.",
            elevated=7, severe=12, unit="/wk"),
-    Signal("member_provider_distance_miles", "Member-provider distance", 2.0,
+    Signal("member_provider_distance_miles", "Distance between patient and provider", 2.0,
            "In-person care from far away is unusual and may mean visits didn't happen.",
            elevated=40, severe=100, unit=" mi"),
     # Circumstantial
-    Signal("round_dollar_billing_ratio", "Round-dollar billing", 1.5,
+    Signal("round_dollar_billing_ratio", "Bills in round dollar amounts", 1.5,
            "Invented bills tend to be round numbers; real ones are messy.",
            elevated=0.30, severe=0.60),
-    Signal("weekend_billing_ratio", "Weekend billing", 1.5,
+    Signal("weekend_billing_ratio", "Billing on weekends", 1.5,
            "Most of these services rarely run on weekends.",
            elevated=0.20, severe=0.40),
-    Signal("recent_policy_change_flag", "Recent policy change", 1.5,
+    Signal("recent_policy_change_flag", "Policy changed just before the claim", 1.5,
            "Coverage changed shortly before the claim."),
-    Signal("prior_claims_last_12mo", "Prior claims (12 mo)", 1.0,
+    Signal("prior_claims_last_12mo", "Claims in the past year", 1.0,
            "A pile of recent claims; weak on its own, since sick people claim often.",
            elevated=4, severe=8),
 ]

@@ -51,7 +51,8 @@ def _evaluate(signal: Signal, value: float) -> TriggeredSignal | None:
                            signal.rationale)
 
 
-def _tier(score: float) -> str:
+def tier_for(score: float) -> str:
+    """Risk level for a 0-100 score; the AI's own score uses the same bands."""
     if score >= HIGH_THRESHOLD:
         return "High"
     if score >= MEDIUM_THRESHOLD:
@@ -62,15 +63,19 @@ def _tier(score: float) -> str:
 def score_case(row: pd.Series) -> CaseScore:
     triggered = [t for s in SIGNALS if (t := _evaluate(s, row[s.column]))]
     score = round(100 * sum(t.points for t in triggered) / MAX_POINTS, 1)
-    tier = _tier(score)
+    tier = tier_for(score)
 
     floor_applied = tier == "Low" and any(t.column in FLOOR_TO_MEDIUM for t in triggered)
     if floor_applied:
         tier = "Medium"
 
     triggered.sort(key=lambda t: t.points, reverse=True)
-    return CaseScore(row["case_id"], score, tier, triggered, floor_applied,
-                     "duplicate billing or provider overlap" if floor_applied else None)
+    reason = None
+    if floor_applied:
+        reason = ("the same service was billed twice"
+                  if any(t.column == "duplicate_service_billed" for t in triggered)
+                  else "another provider billed for the same time")
+    return CaseScore(row["case_id"], score, tier, triggered, floor_applied, reason)
 
 
 def apply_shared_claim_floor(case_score: CaseScore, shares_claim_with: list[str]) -> CaseScore:
@@ -82,7 +87,8 @@ def apply_shared_claim_floor(case_score: CaseScore, shares_claim_with: list[str]
     if shares_claim_with and case_score.tier == "Low":
         case_score.tier = "Medium"
         case_score.floor_applied = True
-        case_score.floor_reason = f"claim number also billed on {', '.join(shares_claim_with)}"
+        case_score.floor_reason = (f"the same claim number was also used on case "
+                                   f"{', '.join(shares_claim_with)}")
     return case_score
 
 

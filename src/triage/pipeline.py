@@ -18,11 +18,53 @@ def score_with_context(df: pd.DataFrame) -> tuple[dict[str, CaseScore], dict[str
     # "Normal" comes from cases the rules consider clean; the referral queue
     # itself is full of suspicious ones.
     peers = peer_stats(df, baseline_ids=[c for c, s in scores.items() if s.tier == "Low"])
-    cross_case = {
-        case_id: {
+    cross_case = {}
+    for case_id in scores:
+        row = df.loc[case_id]
+        typical = peers.loc[row["care_type"]]
+        cross_case[case_id] = {
             "shares_claim_number_with": duplicates.get(case_id, []),
-            "low_risk_peer_medians_for_care_type": peers.loc[df.loc[case_id, "care_type"]].to_dict(),
+            "typical_for_this_care_type": typical.to_dict(),
+            # Pre-computed so the LLM never does its own arithmetic. Multiples
+            # ("2.2 times the usual") because the model misreads "+115%" as
+            # "115% of", and so would many readers.
+            "compared_with_usual": {
+                "amount_times_usual": _times(row["claim_amount_usd"],
+                                             typical["typical_amount_usd"]),
+                "visits_times_usual": _times(row["weekly_visit_frequency"],
+                                             typical["typical_weekly_visits"]),
+                "distance_times_usual": _times(row["member_provider_distance_miles"],
+                                               typical["typical_distance_miles"]),
+            },
         }
-        for case_id in scores
-    }
     return scores, cross_case
+
+
+def _times(value: float, typical: float) -> float | None:
+    return round(value / typical, 1) if typical else None
+
+
+# Gaps from what's usual for the care type that are worth a look even when
+# the automatic check didn't count them (it uses the referral system's own
+# comparison for amounts). Each maps to the warning sign covering the same thing.
+_GAPS = [
+    ("amount_times_usual", "Amount", "amount_vs_peer_avg_pct"),
+    ("visits_times_usual", "Visits", "weekly_visit_frequency"),
+    ("distance_times_usual", "Distance", "member_provider_distance_miles"),
+]
+BIG_GAP = 2.0
+
+
+def concerns(case_score: CaseScore, cross_case: dict) -> list[str]:
+    """What stands out about a case, most serious first, in plain words."""
+    items = []
+    others = cross_case["shares_claim_number_with"]
+    if others:
+        items.append(f"Same claim number as {', '.join(others)}")
+    items += [t.label for t in case_score.triggered]
+    counted = {t.column for t in case_score.triggered}
+    for key, what, sign in _GAPS:
+        times = cross_case["compared_with_usual"][key]
+        if times is not None and times >= BIG_GAP and sign not in counted:
+            items.append(f"{what} {times:g}× the usual")
+    return items

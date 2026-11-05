@@ -29,7 +29,7 @@ def peer_stats(df: pd.DataFrame, baseline_ids: list[str] | None = None) -> pd.Da
         df = df.loc[baseline_ids]
     return df.groupby("care_type").agg(
         cases=("case_id", "count"),
-        median_amount_usd=("claim_amount_usd", "median"),
-        median_weekly_visits=("weekly_visit_frequency", "median"),
-        median_distance_miles=("member_provider_distance_miles", "median"),
+        typical_amount_usd=("claim_amount_usd", "median"),
+        typical_weekly_visits=("weekly_visit_frequency", "median"),
+        typical_distance_miles=("member_provider_distance_miles", "median"),
     )

@@ -1,13 +1,8 @@
-"""LLM call that turns a scored case into an investigator-ready assessment.
+"""LLM calls (Groq): an assessment per case, and answers to questions about one case.
 
 The LLM explains; it does not decide alone. It receives the raw row, the
-rules score and cross-case facts, and must return JSON matching
-`Assessment`. grounding.py then checks what it said against the CSV.
-
-The provider is picked by LLM_PROVIDER in .env: "groq" (default: free tier,
-fast, generous limits), "gemini" (free tier, small daily quota) or
-"anthropic". All go through `_generate_json`, so the rest of the code never
-knows which one ran.
+rules score and cross-case facts, and must return JSON matching `Assessment`
+or `Answer`. grounding.py then checks what it said against the data.
 """
 
 import json
@@ -17,9 +12,9 @@ from typing import Literal
 
 import pandas as pd
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from triage.config import PROJECT_ROOT, SIGNALS
+from triage.config import PROJECT_ROOT
 from triage.scoring import CaseScore
 
 load_dotenv(PROJECT_ROOT / ".env")
@@ -29,14 +24,15 @@ Action = Literal["Close as false positive", "Request documentation", "Escalate t
 
 
 class Indicator(BaseModel):
-    field: str  # CSV column name
-    value: str  # value exactly as it appears in the case data
+    field: str  # exact field name from the facts
+    value: str  # its value, as given
     why: str
 
 
 class Assessment(BaseModel):
     summary: str
     key_indicators: list[Indicator]
+    risk_score: int = Field(ge=0, le=100)  # the AI's own score, same bands as the rules
     risk_level: RiskLevel
     confidence: RiskLevel
     recommended_action: Action
@@ -51,53 +47,105 @@ class Answer(BaseModel):
 
 
 class LLMError(RuntimeError):
-    """The model couldn't produce a valid assessment; callers fall back to rules only."""
+    """The model couldn't produce a valid reply; callers fall back to rules only."""
 
 
 class LLMConfigError(LLMError):
-    """Missing key or unknown provider: retrying or trying other cases won't help."""
+    """Missing key or rejected request: retrying or trying other cases won't help."""
 
+
+# Shared by both prompts: the reader may know nothing about the data.
+PLAIN_ENGLISH = """
+How to write (the reader has never seen this data):
+- Write like you are briefing a colleague who knows nothing about data or
+  statistics: plain, everyday words about what happened in real life.
+- summary: at most 3 short sentences (about 60 words): what stands out, how
+  it compares with what is usual, and why the suggested action fits.
+- Each "why" is one short sentence. next_steps and open_questions: at most 3
+  each, one short sentence each.
+- Say "the patient", "the provider", "similar cases", "usually", "the
+  automatic check" and "risk level". Describe what happened ("the same
+  service was billed twice") rather than naming a data item.
+- Use dollars for amounts, miles for distances, and percentages of bills
+  (write 0.44 as "44% of the bills").
+- To compare with what is usual, use compared_with_usual (2.2 means "about
+  2.2 times the usual") and typical_for_this_care_type; never do your own
+  arithmetic. For big gaps quote both numbers ("$32,373, when about $4,400
+  is usual"). referral_system_amount_vs_similar_pct is the referral system's
+  own comparison and may disagree; if you use it, say it's theirs.
+- Data key names (with underscores) never appear in text you write. They
+  appear only in a cited item's "field", copied exactly from the facts.
+"""
 
 SYSTEM_PROMPT = """\
-You are a junior fraud investigator at a long-term-care insurer. Every case you
-see has already been referred by an automated fraud engine; most referrals turn
-out to be false positives. Your job is a first-pass triage that a senior human
-investigator will review.
+You are a junior fraud investigator at a long-term-care insurer doing first-pass
+triage of referrals from an automated fraud engine; most turn out to be false
+positives. A senior investigator reviews your work.
 
 Rules:
 - Use ONLY the facts provided. Never invent data, names, history or documents.
-- Every key indicator must cite a field name and its exact value. Use the bare
-  field name exactly as it appears in the facts (e.g. "median_amount_usd", not
-  "cross_case.median_amount_usd").
-- A rules engine has already scored the case. Explain it; if you disagree with
-  its tier, say why in the summary. Do not silently contradict it.
-- If the rules engine applied a hard-evidence floor, never recommend
-  "Close as false positive"; the floor reason says what must be explained first.
-- Signals at 0 are normal. Absence of signals is evidence for a false positive.
-- Be concise and specific. Investigators skim.
-- recommended_action must be one of: "Close as false positive",
-  "Request documentation", "Escalate to SIU".
-- next_steps are concrete actions (e.g. "Request weekend visit logs for June").
-- open_questions list what this data cannot answer.
-- confidence reflects how clear-cut the evidence is, not how risky the case is.
-"""
-
+- Each key indicator's "field" is a key copied exactly from the facts, e.g.
+  {"field": "weekly_visit_frequency", "value": "12", "why": "..."}. Its value
+  is that key's value. Never put a description in "field".
+- The automatic check has scored the case. Explain it; if you disagree with its
+  risk level, say why in the summary.
+- risk_score is YOUR own 0-100 judgement of how likely this is fraud, weighing
+  the evidence yourself; it is shown next to the automatic check's score for
+  comparison, so don't just copy risk_score_out_of_100. Same bands: under 20
+  Low, 20-49 Medium, 50 or more High; your risk_level must match your score.
+- If kept_open_by_hard_evidence is true, never recommend "Close as false
+  positive"; kept_open_reason says what must be explained first.
+- Warning signs at 0 are normal; none at all is evidence for a false positive.
+- next_steps are concrete actions; open_questions are what this data can't answer.
+- confidence is how clear-cut the evidence is, not how risky the case is.
+""" + PLAIN_ENGLISH
 
 QA_SYSTEM_PROMPT = """\
-You are a junior fraud investigator helping a senior investigator review ONE
-referral. They ask follow-up questions about it; you answer from the facts.
+You are a junior fraud investigator answering a senior investigator's questions
+about ONE referral.
 
 Rules:
-- Use ONLY the facts provided: this case's data, its rules score, the
-  cross-case facts and the earlier AI assessment. You cannot see other cases,
-  provider records, documents or anything outside these facts.
-- If the facts cannot answer the question, say so plainly, set answerable to
-  false and name the document or record that would answer it. Never guess.
-- citations list every field your answer relies on, with its exact value. Use
-  the bare field name exactly as it appears in the facts.
-- Answer in 2-5 sentences. Investigators skim.
-- You advise; the investigator decides. Don't claim the case is or isn't fraud.
-"""
+- Use ONLY the facts provided (this case, its score, cross-case facts and the
+  earlier assessment). You can't see other cases, records or documents.
+- If the facts can't answer, say so, set answerable to false and name the record
+  that would. Never guess.
+- citations list each fact your answer relies on: "field" is a key copied
+  exactly from the facts (e.g. "weekly_visit_frequency"), "value" its value.
+- Answer in 2-5 sentences. You advise; the investigator decides.
+""" + PLAIN_ENGLISH
+
+# A short shape description costs far fewer tokens than the full JSON schema;
+# pydantic still validates every reply.
+_INDICATOR = '{"field": str, "value": str, "why": str}'
+SHAPES = {
+    Assessment: ('{"summary": str, "key_indicators": [' + _INDICATOR + '], '
+                 '"risk_score": int 0-100, "risk_level": "Low"|"Medium"|"High", "confidence": "Low"|"Medium"|"High", '
+                 '"recommended_action": "Close as false positive"|"Request documentation"|'
+                 '"Escalate to SIU", "next_steps": [str], "open_questions": [str]}'),
+    Answer: '{"answer": str, "citations": [' + _INDICATOR + '], "answerable": bool}',
+}
+
+# Bump when the prompts change, so the batch re-assesses instead of reusing
+# answers written to the old instructions.
+PROMPT_VERSION = 8
+
+# Main model first, then the smaller one. Free-tier rate limits are per model,
+# so the batch gives each its own share of cases (see model_for).
+DEFAULT_MODELS = "openai/gpt-oss-120b,openai/gpt-oss-20b"
+REQUEST_TIMEOUT_S = 60
+
+
+def _models() -> list[str]:
+    return [m.strip() for m in os.getenv("GROQ_MODEL", DEFAULT_MODELS).split(",")]
+
+
+def model_for(case_score: CaseScore) -> str:
+    """Clear Low cases go to the smaller, faster model; the rest to the main one.
+
+    The two models have separate rate limits, so the batch runs both at once.
+    """
+    models = _models()
+    return models[-1] if case_score.tier == "Low" else models[0]
 
 
 def to_plain(value):
@@ -107,18 +155,26 @@ def to_plain(value):
     return value.item() if hasattr(value, "item") else value
 
 
+# CSV columns renamed before the model sees them: the original name nudges it
+# into writing "peer" in text meant for non-experts.
+FIELD_ALIASES = {"amount_vs_peer_avg_pct": "referral_system_amount_vs_similar_pct"}
+
+
+def case_fields(row: pd.Series) -> dict:
+    return {FIELD_ALIASES.get(k, k): to_plain(v) for k, v in row.items()}
+
+
 def build_case_facts(row: pd.Series, case_score: CaseScore, cross_case: dict) -> dict:
-    signal_info = {s.column: s for s in SIGNALS}
     return {
-        "case": {k: to_plain(v) for k, v in row.items()},
-        "rules_engine": {
-            "score_0_to_100": case_score.score,
-            "tier": case_score.tier,
-            "hard_evidence_floor_applied": case_score.floor_applied,
-            "hard_evidence_floor_reason": case_score.floor_reason,
-            "triggered_signals": [
-                {"field": t.column, "value": t.value, "severity": t.severity,
-                 "meaning": signal_info[t.column].rationale}
+        "case": case_fields(row),
+        "automatic_check": {
+            "risk_score_out_of_100": case_score.score,
+            "automatic_risk_level": case_score.tier,
+            "kept_open_by_hard_evidence": case_score.floor_applied,
+            "kept_open_reason": case_score.floor_reason,
+            "warning_signs": [
+                {"field": FIELD_ALIASES.get(t.column, t.column), "value": t.value,
+                 "severity": t.severity}
                 for t in case_score.triggered
             ],
         },
@@ -126,151 +182,116 @@ def build_case_facts(row: pd.Series, case_score: CaseScore, cross_case: dict) ->
     }
 
 
-# Under heavy load a provider can accept a request and never answer; without
-# a timeout the whole batch hangs on one case.
-REQUEST_TIMEOUT_S = 60
+def _compact(obj) -> str:
+    # No indentation: whitespace is tokens, and tokens are the free tier's limit.
+    return json.dumps(obj, separators=(",", ":"))
 
 
-def _generate_json(system: str, user: str, schema: type[BaseModel] = Assessment) -> str:
-    provider = os.getenv("LLM_PROVIDER", "groq").lower()
-    if provider == "groq":
-        return _groq(system, user, schema)
-    if provider == "gemini":
-        return _gemini(system, user, schema)
-    if provider == "anthropic":
-        return _anthropic(system, user, schema)
-    raise LLMConfigError(
-        f"Unknown LLM_PROVIDER {provider!r}; use 'groq', 'gemini' or 'anthropic'")
+def _keys() -> list[str]:
+    """GROQ_API_KEY may hold several keys, comma-separated, tried in order."""
+    return [k.strip() for k in os.getenv("GROQ_API_KEY", "").split(",") if k.strip()]
 
 
-def _with_schema(system: str, schema: type[BaseModel]) -> str:
-    """For providers that don't enforce a schema themselves, spell it out."""
-    spec = json.dumps(schema.model_json_schema())
-    return f"{system}\nReply with only a JSON object matching this schema:\n{spec}"
+# (key number, model) pairs that hit the free-tier daily token limit, and keys
+# Groq rejected. Skipped for the rest of the process (the daily limit is a
+# rolling 24 hours), so calls go straight to a key or model that still works.
+_OUT_FOR_TODAY: set[tuple[int, str]] = set()
+_BAD_KEYS: set[int] = set()
 
 
-def _strip_fence(text: str) -> str:
-    """Tolerate a ```json fence around the object."""
-    text = text.strip()
-    return text.removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+def _generate_json(system: str, user: str, schema: type[BaseModel],
+                   reasoning: str = "low", models: list[str] | None = None,
+                   wait: bool = False) -> str:
+    """Try each model in order, and for each model every key with quota left.
 
-
-DEFAULT_GROQ_MODELS = "openai/gpt-oss-120b,qwen/qwen3.8-27b,openai/gpt-oss-20b"
-
-
-def _groq(system: str, user: str, schema: type[BaseModel]) -> str:
+    A rate-limited key moves on to the next key at once. A batch lane
+    (wait=True) then waits for its own model rather than eating into the other
+    lane's limit; an investigator waiting on an answer moves to the next model.
+    """
     import groq
 
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
+    keys = _keys()
+    if not keys:
         raise LLMConfigError("GROQ_API_KEY is not set in .env")
 
-    # The SDK already retries 429/5xx with backoff before raising.
-    client = groq.Groq(api_key=api_key, timeout=REQUEST_TIMEOUT_S, max_retries=2)
-    # GROQ_MODEL may list fallbacks: free-tier limits are per model.
-    models = [m.strip() for m in os.getenv("GROQ_MODEL", DEFAULT_GROQ_MODELS).split(",")]
+    def call(key: str, model: str, retries: int) -> str:
+        # The SDK retries 429/5xx itself, honouring the server's retry-after.
+        client = groq.Groq(api_key=key, timeout=REQUEST_TIMEOUT_S, max_retries=retries)
+        response = client.chat.completions.create(
+            model=model,
+            temperature=0,
+            reasoning_effort=reasoning,
+            response_format={"type": "json_object"},
+            messages=[{"role": "system",
+                       "content": f"{system}\nReply with only JSON shaped like: "
+                                  f"{SHAPES[schema]}"},
+                      {"role": "user", "content": user}],
+        )
+        return response.choices[0].message.content
+
+    busy = (groq.RateLimitError, groq.InternalServerError, groq.APITimeoutError,
+            groq.APIConnectionError)
+    models = models or _models()
+    last_error: Exception | None = None
     for model in models:
-        try:
-            response = client.chat.completions.create(
-                model=model,
-                temperature=0,
-                response_format={"type": "json_object"},
-                messages=[{"role": "system", "content": _with_schema(system, schema)},
-                          {"role": "user", "content": user}],
-            )
-            return _strip_fence(response.choices[0].message.content)
-        except (groq.RateLimitError, groq.InternalServerError, groq.APITimeoutError,
-                groq.APIConnectionError):
-            if model == models[-1]:
-                raise  # every model is busy: let assess_case back off and retry
-        except (groq.AuthenticationError, groq.PermissionDeniedError, groq.NotFoundError) as e:
-            raise LLMConfigError(f"Groq rejected the request ({model}): {e}") from e
-        # BadRequestError (e.g. output that failed Groq's JSON check) propagates
-        # to assess_case, which retries the whole call.
+        usable = [i for i in range(len(keys))
+                  if i not in _BAD_KEYS and (i, model) not in _OUT_FOR_TODAY]
+        for i in usable:
+            try:
+                return call(keys[i], model, retries=0)
+            except busy as e:
+                last_error = e
+                if "per day" in str(e):
+                    _OUT_FOR_TODAY.add((i, model))
+            except (groq.AuthenticationError, groq.PermissionDeniedError) as e:
+                last_error = e
+                _BAD_KEYS.add(i)  # e.g. a revoked key; the others may still work
+            except groq.NotFoundError as e:
+                raise LLMConfigError(f"Groq doesn't offer model {model}: {e}") from e
+        # Every key for this model is busy for the minute: a batch lane waits.
+        waitable = [i for i in usable if i not in _BAD_KEYS and (i, model) not in _OUT_FOR_TODAY]
+        if wait and waitable:
+            return call(keys[waitable[0]], model, retries=5)
 
-
-DEFAULT_GEMINI_MODELS = "gemini-3.6-flash,gemini-3.8-flash,gemini-flash-latest"
-
-
-def _gemini(system: str, user: str, schema: type[BaseModel]) -> str:
-    import httpx
-    from google import genai
-    from google.genai import errors, types
-
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise LLMConfigError("GEMINI_API_KEY is not set in .env")
-
-    client = genai.Client(api_key=api_key,
-                          http_options=types.HttpOptions(timeout=REQUEST_TIMEOUT_S * 1000))
-    config = types.GenerateContentConfig(
-        system_instruction=system,
-        temperature=0,
-        # Gemini enforces the schema itself, so malformed output is rare.
-        response_mime_type="application/json",
-        response_schema=schema,
-    )
-    # GEMINI_MODEL may list fallbacks: popular models often return 503 under load.
-    models = [m.strip() for m in os.getenv("GEMINI_MODEL", DEFAULT_GEMINI_MODELS).split(",")]
-    for model in models:
-        try:
-            return client.models.generate_content(model=model, contents=user, config=config).text
-        except (errors.ServerError, httpx.TimeoutException):
-            if model == models[-1]:
-                raise  # every model is busy: let assess_case back off and retry
-        except errors.ClientError as e:
-            if e.code == 429:
-                # Free-tier quotas are per model, so another model may still have room.
-                if model == models[-1]:
-                    raise  # all exhausted: let assess_case back off and retry
-                continue
-            # 400/403/404: bad key or retired model; retrying won't help
-            raise LLMConfigError(f"Gemini rejected the request ({model}): {e}") from e
-
-
-def _anthropic(system: str, user: str, schema: type[BaseModel]) -> str:
-    import anthropic
-
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise LLMConfigError("ANTHROPIC_API_KEY is not set in .env")
-
-    client = anthropic.Anthropic(api_key=api_key)
-    response = client.messages.create(
-        model=os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5-5"),
-        max_tokens=1500,
-        temperature=0,
-        system=_with_schema(system, schema),
-        messages=[{"role": "user", "content": user}],
-    )
-    return _strip_fence(response.content[0].text)
+    if len(_BAD_KEYS) == len(keys):
+        raise LLMConfigError(f"Groq rejected every key in GROQ_API_KEY: {last_error}")
+    raise last_error or LLMError("No Groq key or model is available")
 
 
 def _ask(system: str, user: str, schema: type[BaseModel], attempts: int,
-         backoff_s: float):
-    """Call the LLM and parse its JSON, retrying on bad JSON or transient API errors."""
+         reasoning: str = "low", models: list[str] | None = None, wait: bool = False):
+    """Call the LLM and parse its JSON, retrying on bad JSON or transient errors."""
     last_error: Exception | None = None
     for attempt in range(attempts):
         try:
-            return schema.model_validate_json(_generate_json(system, user, schema))
+            return schema.model_validate_json(
+                _generate_json(system, user, schema, reasoning=reasoning, models=models,
+                               wait=wait))
         except LLMError:
             raise  # configuration problem; retrying won't help
-        except Exception as e:  # invalid JSON (ValidationError) or API/rate-limit error
+        except Exception as e:  # invalid JSON (ValidationError) or API error
             last_error = e
             if attempt < attempts - 1:
-                time.sleep(2 ** attempt * backoff_s)
+                time.sleep(2 * (attempt + 1))
     raise LLMError(f"No valid reply after {attempts} attempts: {last_error}")
 
 
 def assess_case(row: pd.Series, case_score: CaseScore, cross_case: dict,
-                attempts: int = 3) -> Assessment:
-    """Ask the LLM for an assessment of one case."""
+                model: str | None = None) -> Assessment:
+    """Ask the LLM for an assessment of one case, on `model` only if given."""
     facts = build_case_facts(row, case_score, cross_case)
-    user = f"Assess this referral.\n\n{json.dumps(facts, indent=2)}"
-    return _ask(SYSTEM_PROMPT, user, Assessment, attempts, backoff_s=5)
+    # Low effort halves latency and tokens, and is enough to explain clear
+    # cases. Medium cases are the ambiguous ones, where a real second opinion
+    # matters, so the model thinks harder there (about 9 of 50 cases).
+    reasoning = "medium" if case_score.tier == "Medium" else "low"
+    return _ask(SYSTEM_PROMPT, f"Assess this referral.\n{_compact(facts)}", Assessment,
+                attempts=3, reasoning=reasoning, wait=model is not None,
+                # The lane's own model, then the other only as a last resort
+                # (e.g. the lane's model is out of tokens for the day).
+                models=[model, *(m for m in _models() if m != model)] if model else None)
 
 
-# Earlier turns give follow-ups ("and the weekend ratio?") their context; a few
+# Earlier turns give follow-ups ("and the weekend bills?") their context; a few
 # are enough and keep the prompt small.
 MAX_HISTORY_TURNS = 6
 
@@ -278,15 +299,16 @@ MAX_HISTORY_TURNS = 6
 def answer_question(row: pd.Series, case_score: CaseScore, cross_case: dict,
                     assessment: dict | None, question: str,
                     history: list[dict] | None = None) -> Answer:
-    """Case-scoped Q&A: answers only from this case's facts and its assessment.
+    """Answer a question about one case from its facts and assessment only.
 
-    history is earlier turns as [{"question": ..., "answer": ...}]. Fewer,
-    shorter retries than the batch, because an investigator is waiting.
+    history is earlier turns as [{"question": ..., "answer": ...}].
     """
     facts = build_case_facts(row, case_score, cross_case)
-    facts["earlier_ai_assessment"] = assessment
+    if assessment:  # the gist is enough; the full record repeats the facts
+        facts["earlier_ai_assessment"] = {k: assessment[k] for k in (
+            "summary", "risk_level", "recommended_action", "next_steps", "open_questions")}
     turns = (history or [])[-MAX_HISTORY_TURNS:]
-    user = (f"Case facts:\n{json.dumps(facts, indent=2)}\n\n"
-            f"Earlier questions in this conversation:\n{json.dumps(turns, indent=2)}\n\n"
-            f"Investigator's question: {question}")
-    return _ask(QA_SYSTEM_PROMPT, user, Answer, attempts=2, backoff_s=2)
+    user = (f"Case facts:\n{_compact(facts)}\n"
+            f"Earlier questions:\n{_compact(turns)}\n"
+            f"Question: {question}")
+    return _ask(QA_SYSTEM_PROMPT, user, Answer, attempts=2)
