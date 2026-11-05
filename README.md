@@ -1,92 +1,54 @@
 # Case Review: a Junior AI Investigator
 
-Every case in the queue is already a fraud referral. The investigator's real
-problem is deciding which referrals deserve their time. This tool triages the
-queue overnight so that, when they open it in the morning, each case already
-has a risk tier, the evidence behind it and a recommended next step. The
-investigator stays in control: they accept or override every call.
+Every case in the queue is already a fraud referral; most turn out to be false
+alarms. The investigator's real problem is deciding which referrals deserve
+their time. This notebook gives each case an AI risk score, a plain-English
+explanation and a recommended next step, then lets the investigator review the
+queue, ask questions and accept or override every call.
 
-## How it works
+Everything is in one notebook, [fraud_triage.ipynb](fraud_triage.ipynb):
 
-1. **Rules score** (`src/triage/scoring.py`). A transparent, weighted score
-   over the 10 signals. Weights and thresholds live in `src/triage/config.py`,
-   each with its reason. Hard evidence (duplicate billing, overlapping
-   providers) can never be auto-cleared.
-2. **Cross-case checks** (`src/triage/cross_case.py`). Facts that no single row
-   shows, such as two cases sharing one claim number (which also floors the
-   case to Medium), plus peer statistics by care type.
-3. **LLM assessment** (`src/triage/llm.py`). The LLM explains the score in
-   plain English, cites the fields behind it and recommends one of three
-   actions, using only the facts it's given. It runs on Groq's free tier:
-   clear Low cases go to gpt-oss-20b and the rest to gpt-oss-120b, and since
-   each model has its own rate limit, both run at the same time. Compact
-   prompts and low reasoning effort (more for Medium cases) keep it fast. If
-   the AI is unavailable the case still shows its rules score.
-4. **Grounding** (`src/triage/grounding.py`). Every value the LLM cites is
-   checked against the CSV. Wrong values, invented fields and disagreements
-   with the rules score are flagged in the UI, not hidden.
-5. **API and UI** (`app/`). A FastAPI app serves the cached results as JSON
-   and a plain HTML/JS page that reads them, so it loads instantly and needs
-   no frontend build step. Interactive API docs are at `/docs`.
-6. **Ask about a case** (`POST /api/cases/{id}/ask`). Click a case to open it
-   and ask follow-up questions. The LLM answers only from that case's facts,
-   says so when the data can't answer, and every field it cites is checked
-   the same way as the assessment.
-7. **Investigator decisions** (`src/triage/store.py`). The investigator accepts
-   the AI's call or overrides it with a reason, and can add notes. Every
-   decision is kept in SQLite (`outputs/decisions.db`) with who, when and what
-   the AI had said: an audit trail, and later the labels for tuning the rules
-   or training a model. The queue can be filtered to cases that need a closer
-   look, and clean Low cases (rules and AI agree, nothing flagged) can be
-   accepted in one step; the server re-checks each one.
-8. **Evaluation** (`scripts/evaluate.py`). Prints AI coverage, agreement with
-   the automatic check, how many cited facts were confirmed, warnings by kind
-   and, once the app is used, the investigator override rate.
+1. **The cases, and what no single row shows.** Loads the 50 cases and adds
+   cross-case facts: other cases with the same claim number, and how the
+   amount, visits and distance compare with the usual for that type of care.
+2. **The AI** (Groq's free tier, gpt-oss-120b, falling back to gpt-oss-20b).
+   For each case it returns a 0-100 risk score, a risk level, a short summary,
+   the facts behind it, a recommended action and next steps, using only the
+   facts it's given.
+3. **Checking the AI's work.** Every fact the AI cites is checked against the
+   data (✓ or ⚠). Hard evidence (double billing, overlapping visits, a shared
+   claim number) can never be closed: the AI is told so, and any case it would
+   close or rate Low anyway is flagged.
+4. **The queue**, highest AI risk first.
+5. **Review a case.** Pick a case to see the assessment, ask follow-up
+   questions (answered only from that case's facts, and checked the same way),
+   accept or override the AI's call with a reason, and leave notes. Decisions
+   and notes go to `outputs/audit.csv`, an append-only audit trail.
+
+AI results are saved to `data/ai_assessments.json`, so the notebook opens
+instantly and reviewers can browse every case without a key (only questions
+need one). Delete the file to assess again (about 3 minutes).
+
+## Run it in Google Colab
+
+1. Open `fraud_triage.ipynb` in Colab (File → Upload notebook).
+2. Add your Groq key under Secrets (🔑 in the left sidebar) as `GROQ_API_KEY`.
+3. Runtime → Run all, and when asked, upload `data/sample_cases.csv` and
+   `data/ai_assessments.json`.
+
+Colab forgets uploaded files and the audit trail when the session ends.
 
 ## Run it locally
-
-Requires Python 3.10+.
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env              # then add your GROQ_API_KEY
-python scripts/run_triage.py      # writes outputs/triage.json
-uvicorn app.main:app --reload
+cp .env.example .env               # then add your GROQ_API_KEY
+jupyter notebook fraud_triage.ipynb
 ```
 
 Get a free Groq key at https://console.groq.com/keys. You can list several
-keys, comma-separated (`GROQ_API_KEY=key1,key2`); when one runs out of quota
-the next is used. The batch takes a few
-minutes on the free tier; if it's interrupted, rerun the same command and it
-resumes. Without a key, `python scripts/run_triage.py --no-llm` produces the
-rules-only triage.
+keys, comma-separated (`GROQ_API_KEY=key1,key2`), for more free quota.
 
-Open http://localhost:8000 for the app, or http://localhost:8000/docs for the API.
-
-Run the tests with:
-
-```bash
-pytest
-```
-
-Print the evaluation report with:
-
-```bash
-python scripts/evaluate.py
-```
-
-## Project layout
-
-```
-data/            sample_cases.csv (50 synthetic referrals)
-src/triage/      core logic, with no UI code
-scripts/         batch triage job and evaluation report
-app/             FastAPI app (main.py) and static UI (static/)
-tests/           scoring, LLM/grounding, batch, decisions and API tests (all offline)
-outputs/         triage results and decisions database (gitignored)
-```
-
-See [ASSUMPTIONS.md](ASSUMPTIONS.md) for the business assumptions behind the
-design.
+See [ASSUMPTIONS.md](ASSUMPTIONS.md) for the assumptions behind the design.
