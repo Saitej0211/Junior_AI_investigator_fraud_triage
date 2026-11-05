@@ -44,8 +44,9 @@ need one). Delete the file to assess again (about 3 minutes).
 3. Runtime → Run all. When asked, upload `data/sample_cases.csv`,
    `data/ai_assessments.json`, `web/index.html`, `web/app.js` and
    `web/styles.css` (all five at once).
-4. Click **Open the Case Review app**, the link under the last cell. The
-   default CPU runtime is all it needs: the AI runs on Groq's servers.
+4. Click the link under the last cell to open the app in a new tab. If your
+   browser blocks it, use the same page shown below the link. The default CPU
+   runtime is all it needs: the AI runs on Groq's servers.
 
 Colab forgets uploaded files and the audit trail when the session ends.
 
