@@ -60,6 +60,13 @@ cp .env.example .env               # then add your GROQ_API_KEY
 jupyter notebook fraud_triage.ipynb  # Run all, then open http://localhost:8000
 ```
 
+Or, without Jupyter, run the notebook's code straight from the terminal and
+open http://localhost:8000 (Ctrl+C to stop):
+
+```bash
+python run_app.py
+```
+
 Get a free Groq key at https://console.groq.com/keys. You can list several
 keys, comma-separated (`GROQ_API_KEY=key1,key2`), for more free quota.
 
