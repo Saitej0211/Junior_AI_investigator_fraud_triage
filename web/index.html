@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Case Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="layout">
+    <div class="content">
+      <header class="appbar">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l7 3v5c0 4.5-3 8.5-7 10-4-1.5-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/>
+            </svg>
+          </span>
+          <div>
+            <div class="brand-name">Case Review</div>
+            <div class="brand-sub">Junior AI Investigator</div>
+          </div>
+        </div>
+        <label class="who">Reviewing as
+          <input id="investigator" autocomplete="name" maxlength="100" placeholder="Your name">
+        </label>
+      </header>
+      <section class="page-head">
+        <p id="today" class="eyebrow"></p>
+        <h1>Today's fraud referrals</h1>
+        <p id="queue-sub" class="muted"></p>
+        <div id="counts" class="stats"></div>
+      </section>
+      <main>
+        <div id="alerts"></div>
+        <div id="error" class="error" hidden></div>
+        <div class="toolbar">
+          <div id="filters" class="filters" role="group" aria-label="Show cases"></div>
+          <label class="check"><input type="checkbox" id="hide-reviewed"> Hide reviewed</label>
+          <button type="button" id="bulk-accept" class="primary"></button>
+        </div>
+        <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th class="num">#</th><th>Case</th><th>AI risk</th><th>Status</th><th>AI assessment</th><th>Main concerns</th></tr>
+          </thead>
+          <tbody id="queue"></tbody>
+        </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- Right sidebar: the selected case, with its chat pinned to the bottom. -->
+    <aside id="case" class="sidebar">
+      <p id="case-empty" class="empty muted">Select a case to see its assessment and ask about it.</p>
+      <div class="side-head" hidden>
+        <h2 id="case-title"></h2>
+        <div class="nav">
+          <span id="case-position" class="muted"></span>
+          <button id="case-prev" class="nav-btn" aria-label="Previous case" title="Previous case (↑)">↑</button>
+          <button id="case-next" class="nav-btn" aria-label="Next case" title="Next case (↓)">↓</button>
+          <button id="case-close" class="icon-btn" aria-label="Close case">✕</button>
+        </div>
+      </div>
+      <div id="case-body" class="side-body" hidden></div>
+      <section class="ask" hidden>
+        <button type="button" id="ask-toggle" class="ask-toggle" aria-expanded="true" aria-controls="ask-body">
+          <span>Ask about this case</span><span class="chev" aria-hidden="true">▾</span>
+        </button>
+        <div id="ask-body" class="ask-body">
+          <div id="thread" class="thread"></div>
+          <div id="suggestions" class="suggestions"></div>
+          <form id="ask-form">
+            <input id="ask-input" autocomplete="off" maxlength="1000"
+                   placeholder="e.g. Why is the distance a concern?">
+            <button type="submit">Ask</button>
+          </form>
+        </div>
+      </section>
+    </aside>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
